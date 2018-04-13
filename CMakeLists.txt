@@ -15,21 +15,22 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+# default debug build
 if (NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE "Debug")
+    set(CMAKE_BUILD_TYPE "Debug")  # Debug or Release
 endif ()
 
 set(CMAKE_CXX_COMPILER "g++")
 
-# flags
+# general build flags
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Werror -march=native")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-parameter -Wno-unused-private-field")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-parameter")
 
-# debug build
+# for debug build
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -g -fno-omit-frame-pointer -fno-optimize-sibling-calls")
 
-# release build
-#set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2 -finline-limit=1000 -DNDEBUG")
+# for release build
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2 -finline-limit=1000 -DNDEBUG")
 
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
@@ -38,15 +39,30 @@ include_directories(
         "${PROJECT_SOURCE_DIR}"
         "${PROJECT_SOURCE_DIR}/include")
 
+# expose only necessary interface in the future
+set(POLLY_PUBLIC_INCLUDE_DIR "include/polly")
+
 add_library(polly "")
 
-# expose only necessary interface
-#set(POLLY_PUBLIC_INCLUDE_DIR "include/polly")
+# pthread
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+find_package(Threads REQUIRED)
+target_link_libraries(polly Threads::Threads)
 
 # all public for now
 target_sources(polly PUBLIC
         "${PROJECT_SOURCE_DIR}/net/eventloop.cc"
-        "${PROJECT_SOURCE_DIR}/net/eventloop.h")
+        "${PROJECT_SOURCE_DIR}/net/eventloop.h"
+        "${PROJECT_SOURCE_DIR}/log/log_stream.cc"
+        "${PROJECT_SOURCE_DIR}/log/log_stream.h"
+        "${PROJECT_SOURCE_DIR}/util/buffer.cc"
+        "${PROJECT_SOURCE_DIR}/util/buffer.h"
+        "${PROJECT_SOURCE_DIR}/util/current_thread.cc"
+        "${PROJECT_SOURCE_DIR}/util/current_thread.h"
+        )
+
+# tests
+add_subdirectory(tests)
 
 # examples
 add_subdirectory(examples)
