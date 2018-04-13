@@ -21,6 +21,7 @@ TEST(EventLoop, Duplicate) {
   EventLoop l1;
   try {
     EventLoop l2;
+    FAIL() << "Fail: should not be here";
   } catch (runtime_error e) {
     // runtime error
   } catch (...) {
@@ -34,6 +35,7 @@ TEST(EventLoop, CurrentThread) {
   auto res = std::async(std::launch::async, [&]() { l.loop(); });
   try {
     res.get();
+    FAIL() << "Fail: should not be here";
   } catch (runtime_error e) {
     // runtime error
   } catch (...) {
