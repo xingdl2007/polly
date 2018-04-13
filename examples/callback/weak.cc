@@ -87,10 +87,10 @@ private:
     }
     delete stock;
   }
-  void deleteSock(Stock *sock) {
-    if (sock) {
+  void deleteSock(Stock *stock) {
+    if (stock) {
       std::lock_guard<std::mutex> lock(mutex_);
-      stocks_.erase(sock->key());
+      stocks_.erase(stock->key());
     }
   }
   std::mutex mutex_;
