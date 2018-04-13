@@ -4,6 +4,8 @@
 
 add_executable(eloop_t1 eloop_t1.cc)
 add_executable(eloop_t2 eloop_t2.cc)
+add_executable(eloop_t3 eloop_t3.cc)
 
 target_link_libraries(eloop_t1 polly)
 target_link_libraries(eloop_t2 polly)
+target_link_libraries(eloop_t3 polly)

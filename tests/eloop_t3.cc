@@ -9,7 +9,7 @@ using namespace polly;
 // one thread can only have one event loop
 
 int main() {
-  EventLoop l1;
-  EventLoop l2;
+  EventLoop l;
+  l.loop();
   return 0;
 }
