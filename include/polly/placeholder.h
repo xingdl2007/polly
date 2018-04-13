@@ -2,8 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file. See the AUTHORS file for names of contributors.
 
-#include "net/eventloop.h"
+#ifndef NETWORK_POLLY_INCLUDE_POLLY_PLACEHOLDER_H
+#define NETWORK_POLLY_INCLUDE_POLLY_PLACEHOLDER_H
 
-int main() {
-  return 0;
-}
+class PlaceHolder {
+
+};
+
+#endif //NETWORK_POLLY_INCLUDE_POLLY_PLACEHOLDER_H
