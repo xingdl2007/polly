@@ -23,6 +23,8 @@ TEST(EventLoop, Duplicate) {
     EventLoop l2;
   } catch (runtime_error e) {
     // runtime error
+  } catch (...) {
+    FAIL() << "Expected std::runtime_error";
   }
 }
 
@@ -34,6 +36,8 @@ TEST(EventLoop, CurrentThread) {
     res.get();
   } catch (runtime_error e) {
     // runtime error
+  } catch (...) {
+    FAIL() << "Expected std::runtime_error";
   }
 }
 
