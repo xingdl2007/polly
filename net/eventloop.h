@@ -29,7 +29,7 @@ public:
   }
 
   bool isInLoopThread() const {
-    return threadId_ == this_thread::gettid();
+    return threadId_ == this_thread::tid();
   }
 
 private:

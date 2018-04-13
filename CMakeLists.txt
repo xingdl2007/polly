@@ -49,6 +49,8 @@ set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 target_link_libraries(polly Threads::Threads)
 
+include(gtest.cmake)
+
 # all public for now
 target_sources(polly PUBLIC
         "${PROJECT_SOURCE_DIR}/net/eventloop.cc"

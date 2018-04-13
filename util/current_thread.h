@@ -10,7 +10,7 @@
 namespace polly {
 namespace this_thread {
 
-pid_t gettid();
+pid_t tid();
 
 } // namespace this_thread
 } // namespace polly

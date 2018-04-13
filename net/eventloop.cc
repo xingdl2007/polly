@@ -12,7 +12,7 @@ namespace polly {
 
 thread_local EventLoop *EventLoop::t_loopInThisThread = nullptr;
 
-EventLoop::EventLoop() : looping(false), threadId_(this_thread::gettid()) {
+EventLoop::EventLoop() : looping(false), threadId_(this_thread::tid()) {
   // LOG_TRACE
   if (t_loopInThisThread) {
     // LOG_FATAL

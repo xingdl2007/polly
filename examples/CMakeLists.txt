@@ -2,5 +2,5 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file. See the AUTHORS file for names of contributors.
 
-add_executable(echo echo/main.cc)
+add_executable(e_echo echo/main.cc)
 target_link_libraries(polly)
