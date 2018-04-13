@@ -1,1 +1,1 @@
-polly: A non-blocking network library for multi-threaded server written in C++.
+Polly: A reactor-based C++ non-blocking network library.
