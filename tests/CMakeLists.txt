@@ -5,3 +5,6 @@
 # eventloop
 add_executable(t_eventloop eventloop_test.cc)
 target_link_libraries(t_eventloop polly libgtest libgtest_main)
+
+add_executable(t_logging logging_test.cc)
+target_link_libraries(t_logging polly libgtest libgtest_main)

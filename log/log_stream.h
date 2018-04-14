@@ -24,6 +24,8 @@ public:
     buffer_.append(s);
   }
 
+  const char *data() { return buffer_.data(); }
+
   self &operator<<(bool);
   self &operator<<(char);
   self &operator<<(unsigned char);
@@ -50,11 +52,11 @@ public:
   Fmt(const char *fmt, T... val);
 
   const char *data() const { return buf_; }
-  int length() const { return length_; }
+  size_t length() const { return length_; }
 
 private:
   char buf_[32];
-  int length_;
+  size_t length_;
 };
 
 inline LogStream &operator<<(LogStream &s, const Fmt &fmt) {

@@ -15,20 +15,26 @@ const int kSmallBufferSize = 4096;
 template<int N>
 class FixedBuffer {
 public:
-  FixedBuffer() : cur_(data) { bzero(); }
+  FixedBuffer() : cur_(data_) { bzero(); }
 
   FixedBuffer(FixedBuffer const &) = delete;
   FixedBuffer &operator=(FixedBuffer const &) = delete;
 
   ~FixedBuffer() = default;
 
-  // available space
-  size_t space() { return static_cast<size_t >(end() - cur_); }
+  // datasize
+  const char *data() { return data_; }
 
-  void bzero() { ::bzero(data, sizeof data); }
+  // size
+  size_t size() { return static_cast<size_t>(cur_ - data_); }
+
+  // available space, -1 for null terminated
+  size_t space() { return static_cast<size_t >(end() - cur_ - 1); }
+
+  void bzero() { ::bzero(data_, sizeof data_); }
 
   // after last element pointer
-  char *end() { return data + N; }
+  char *end() { return data_ + N; }
 
   void append(Slice const &s) {
     assert(space() >= s.size());
@@ -37,7 +43,7 @@ public:
   }
 
 private:
-  char data[N];
+  char data_[N];
   char *cur_;
 };
 
