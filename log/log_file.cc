@@ -6,6 +6,7 @@
 // when current file is too big or in the new day.
 
 #include "log_file.h"
+#include "util/process_info.h"
 
 namespace polly {
 
@@ -50,10 +51,25 @@ void LogFile::rollToNewFile() {
   file_ = std::make_unique<AppendFile>(filename);
 }
 
-// format:
+// format: command + date + time + pid + hostname + ".log"
 std::string LogFile::getLogFileName(const std::string &basename, time_t *now) {
   *now = time(nullptr);
-  return "";
+  std::string name('\0', basename.size() + 64);
+  name = basename;
+
+  // date + time
+  char buffer[32];
+  struct tm tm;
+  gmtime_r(now, &tm);
+  strftime(buffer, sizeof buffer, ".%Y%m%d-%H%M%S.", &tm);
+  name += buffer;
+
+  // hostname + pid + ".log"
+  name += process::hostname();
+  name += ".";
+  name += process::pidString();
+  name += ".log";
+  return name;
 }
 
 } // namespace polly

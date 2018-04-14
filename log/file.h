@@ -17,7 +17,7 @@ namespace polly {
 
 class AppendFile {
 public:
-  AppendFile(std::string const &file) : has_written_(0) {
+  explicit AppendFile(std::string const &file) : has_written_(0) {
     fd_ = ::fopen(file.c_str(), "ae"); // a: appending; e: O_CLOEXEC
     ::setbuffer(fd_, buffer, sizeof buffer);
   }
@@ -28,6 +28,7 @@ public:
   ~AppendFile() {
     ::fclose(fd_);
   }
+
   // use fwrite_unlocked instead of fwrite for efficiency
   void Append(const Slice &s);
 
