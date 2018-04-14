@@ -77,14 +77,11 @@ LogStream::self &LogStream::operator<<(std::string const &s) {
 
 template<typename... T>
 Fmt::Fmt(const char *fmt, T... val) {
-  assert(std::is_arithmetic<T...>::value);
-
   length_ = snprintf(buf_, sizeof buf_, fmt, val...);
   assert(static_cast<size_t>(length_) < sizeof buf_);
 }
 
 // Explicit instantiations
-
 template Fmt::Fmt(const char *fmt, char);
 
 template Fmt::Fmt(const char *fmt, short);
