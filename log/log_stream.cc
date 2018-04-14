@@ -60,7 +60,7 @@ LogStream::self &LogStream::operator<<(float v) {
 }
 
 LogStream::self &LogStream::operator<<(double v) {
-  return *this << Fmt("%g", v);
+  return *this << Fmt("%f", v);
 }
 
 LogStream::self &LogStream::operator<<(const char *s) {
@@ -75,11 +75,11 @@ LogStream::self &LogStream::operator<<(std::string const &s) {
   return *this;
 }
 
-template<typename T>
-Fmt::Fmt(const char *fmt, T val) {
-  assert(std::is_arithmetic<T>::value);
+template<typename... T>
+Fmt::Fmt(const char *fmt, T... val) {
+  assert(std::is_arithmetic<T...>::value);
 
-  length_ = snprintf(buf_, sizeof buf_, fmt, val);
+  length_ = snprintf(buf_, sizeof buf_, fmt, val...);
   assert(static_cast<size_t>(length_) < sizeof buf_);
 }
 

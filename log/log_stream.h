@@ -46,8 +46,8 @@ private:
 
 class Fmt {
 public:
-  template<typename T>
-  Fmt(const char *fmt, T val);
+  template<typename... T>
+  Fmt(const char *fmt, T... val);
 
   const char *data() const { return buf_; }
   int length() const { return length_; }
