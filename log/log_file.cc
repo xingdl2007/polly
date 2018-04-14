@@ -13,7 +13,7 @@ LogFile::LogFile(std::string const &file) : basename_(file) {
   rollToNewFile();
 }
 
-void LogFile::Append(const polly::Slice &s) {
+void LogFile::Append(const Slice &s) {
   static int count = 0;
   file_->Append(s);
 

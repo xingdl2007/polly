@@ -32,9 +32,11 @@ public:
   void Append(const Slice &s);
 
   off64_t HasWritten() const { return has_written_; }
+
   void Flush() {
     ::fflush(fd_);
   }
+
 private:
   FILE *fd_;
   char buffer[64 * 4096]; // block buffered
