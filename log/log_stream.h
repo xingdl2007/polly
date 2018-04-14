@@ -2,11 +2,15 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file. See the AUTHORS file for names of contributors.
 
-#ifndef NETWORK_POLLY_LOG_LOG_STREAM_H
-#define NETWORK_POLLY_LOG_LOG_STREAM_H
+#ifndef NETWORK_POLLY_LOG_LOG_STREAM_H_
+#define NETWORK_POLLY_LOG_LOG_STREAM_H_
+
+namespace polly {
 
 class LogStream {
 
 };
 
-#endif //NETWORK_POLLY_LOG_LOG_STREAM_H
+} // namespace polly
+
+#endif //NETWORK_POLLY_LOG_LOG_STREAM_H_

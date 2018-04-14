@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file. See the AUTHORS file for names of contributors.
 
-#ifndef POLLY_CURRENT_THREAD_H
-#define POLLY_CURRENT_THREAD_H
+#ifndef NETWORK_POLLY_UTIL_CURRENT_THREAD_H_
+#define NETWORK_POLLY_UTIL_CURRENT_THREAD_H_
 
 #include <unistd.h>
 
@@ -15,4 +15,4 @@ pid_t tid();
 } // namespace this_thread
 } // namespace polly
 
-#endif //POLLY_CURRENT_THREAD_H
+#endif // NETWORK_POLLY_UTIL_CURRENT_THREAD_H_

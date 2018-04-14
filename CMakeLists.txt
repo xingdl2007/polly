@@ -55,12 +55,22 @@ include(gtest.cmake)
 target_sources(polly PUBLIC
         "${PROJECT_SOURCE_DIR}/net/eventloop.cc"
         "${PROJECT_SOURCE_DIR}/net/eventloop.h"
+        "${PROJECT_SOURCE_DIR}/log/async_logging.cc"
+        "${PROJECT_SOURCE_DIR}/log/async_logging.h"
+        "${PROJECT_SOURCE_DIR}/log/file.cc"
+        "${PROJECT_SOURCE_DIR}/log/file.h"
+        "${PROJECT_SOURCE_DIR}/log/log_file.cc"
+        "${PROJECT_SOURCE_DIR}/log/log_file.h"
         "${PROJECT_SOURCE_DIR}/log/log_stream.cc"
         "${PROJECT_SOURCE_DIR}/log/log_stream.h"
+        "${PROJECT_SOURCE_DIR}/log/logging.cc"
+        "${PROJECT_SOURCE_DIR}/log/logging.h"
         "${PROJECT_SOURCE_DIR}/util/buffer.cc"
         "${PROJECT_SOURCE_DIR}/util/buffer.h"
+        "${PROJECT_SOURCE_DIR}/util/copyable.h"
         "${PROJECT_SOURCE_DIR}/util/current_thread.cc"
         "${PROJECT_SOURCE_DIR}/util/current_thread.h"
+        "${PROJECT_SOURCE_DIR}/include/polly/slice.h"
         )
 
 # tests

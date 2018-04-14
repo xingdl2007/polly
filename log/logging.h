@@ -2,4 +2,15 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file. See the AUTHORS file for names of contributors.
 
-#include "placeholder.h"
+#ifndef NETWORK_POLLY_LOG_LOGGING_H_
+#define NETWORK_POLLY_LOG_LOGGING_H_
+
+namespace polly {
+
+class Logging {
+
+};
+
+} // namespace polly
+
+#endif //NETWORK_POLLY_LOG_LOGGING_H_
