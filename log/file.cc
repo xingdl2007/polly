@@ -12,6 +12,9 @@ namespace polly {
 
 // use fwrite_unlocked instead of fwrite for efficiency
 void AppendFile::Append(const Slice &s) {
+  if (s.data() == nullptr || s.size() == 0) {
+    return;
+  }
   auto written = ::fwrite_unlocked(s.data(), 1, s.size(), fd_);
   auto remaining = s.size() - written;
 

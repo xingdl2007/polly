@@ -28,8 +28,10 @@ public:
   // size
   size_t size() { return static_cast<size_t>(cur_ - data_); }
 
-  // available space, -1 for null terminated
-  size_t space() { return static_cast<size_t >(end() - cur_ - 1); }
+  Slice slice() { return Slice(data_, size()); }
+
+  // available space
+  size_t space() { return static_cast<size_t >(end() - cur_); }
 
   void bzero() { ::bzero(data_, sizeof data_); }
 
