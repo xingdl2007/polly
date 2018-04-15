@@ -6,7 +6,7 @@
 
 #include "logger.h"
 #include "include/polly/slice.h"
-#include "util/current_thread.h"
+#include "util/process_info.h"
 
 // global log level control
 polly::LogLevel gLogLevel = polly::LogLevel::INFO;

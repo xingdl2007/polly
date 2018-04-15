@@ -68,8 +68,6 @@ target_sources(polly PUBLIC
         "${PROJECT_SOURCE_DIR}/util/buffer.cc"
         "${PROJECT_SOURCE_DIR}/util/buffer.h"
         "${PROJECT_SOURCE_DIR}/util/copyable.h"
-        "${PROJECT_SOURCE_DIR}/util/current_thread.cc"
-        "${PROJECT_SOURCE_DIR}/util/current_thread.h"
         "${PROJECT_SOURCE_DIR}/util/process_info.cc"
         "${PROJECT_SOURCE_DIR}/util/process_info.h"
         "${PROJECT_SOURCE_DIR}/util/timestamp.cc"

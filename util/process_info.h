@@ -8,6 +8,12 @@
 #include <string>
 
 namespace polly {
+namespace this_thread {
+
+pid_t tid();
+
+} // namespace this_thread
+
 namespace process {
 
 pid_t pid();

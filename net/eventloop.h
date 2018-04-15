@@ -6,7 +6,7 @@
 #define NETWORK_POLLY_NET_EVENTLOOP_H_
 
 #include <unistd.h>
-#include "util/current_thread.h"
+#include "util/process_info.h"
 
 namespace polly {
 

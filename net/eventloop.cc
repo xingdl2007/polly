@@ -6,7 +6,6 @@
 #include <sys/poll.h>
 #include <stdexcept>
 #include "eventloop.h"
-#include "util/current_thread.h"
 
 namespace polly {
 
