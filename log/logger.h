@@ -76,6 +76,8 @@ private:
 } // namespace polly
 
 extern polly::LogLevel gLogLevel;
+polly::LogLevel getLogLevel();
+void setLogLevel(polly::LogLevel level);
 
 #define LOG_TRACE if(gLogLevel <= polly::LogLevel::TRACE) \
                   polly::Logger(__FILE__, __LINE__, LogLevel::TRACE).stream()

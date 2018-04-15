@@ -9,6 +9,8 @@ using namespace std;
 using namespace polly;
 
 TEST(Logging, Basic) {
+  setLogLevel(LogLevel::TRACE);
+
   LOG_TRACE << "h";
   LOG_DEBUG << "e";
   LOG_INFO << "l";

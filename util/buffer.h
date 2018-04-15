@@ -22,10 +22,8 @@ public:
 
   ~FixedBuffer() = default;
 
-  // datasize
+  // data + size
   const char *data() { return data_; }
-
-  // size
   size_t size() { return static_cast<size_t>(cur_ - data_); }
 
   Slice slice() { return Slice(data_, size()); }
