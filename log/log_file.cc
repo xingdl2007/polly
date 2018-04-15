@@ -58,7 +58,7 @@ std::string LogFile::getLogFileName(const std::string &basename, time_t *now) {
   name = basename;
 
   // date + time
-  char buffer[32];
+  char buffer[32] = {0};
   struct tm tm;
   gmtime_r(now, &tm);
   strftime(buffer, sizeof buffer, ".%Y%m%d-%H%M%S.", &tm);

@@ -75,6 +75,11 @@ LogStream::self &LogStream::operator<<(std::string const &s) {
   return *this;
 }
 
+LogStream::self &LogStream::operator<<(Slice const &s) {
+  append(s);
+  return *this;
+}
+
 template<typename... T>
 Fmt::Fmt(const char *fmt, T... val) {
   length_ = static_cast<size_t >(snprintf(buf_, sizeof buf_, fmt, val...));

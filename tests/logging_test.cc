@@ -3,7 +3,7 @@
 // found in the LICENSE file. See the AUTHORS file for names of contributors.
 
 #include "gtest/gtest.h"
-#include "log/logging.h"
+#include "log/logger.h"
 
 using namespace std;
 using namespace polly;
@@ -14,5 +14,5 @@ TEST(Logging, Basic) {
   LOG_INFO << "l";
   LOG_WARNING << "l";
   LOG_ERROR << "o";
-  LOG_FATAL << "!\n";
+  LOG_FATAL << "!";
 }

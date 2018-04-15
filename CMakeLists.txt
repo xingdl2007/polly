@@ -63,8 +63,8 @@ target_sources(polly PUBLIC
         "${PROJECT_SOURCE_DIR}/log/log_file.h"
         "${PROJECT_SOURCE_DIR}/log/log_stream.cc"
         "${PROJECT_SOURCE_DIR}/log/log_stream.h"
-        "${PROJECT_SOURCE_DIR}/log/logging.cc"
-        "${PROJECT_SOURCE_DIR}/log/logging.h"
+        "${PROJECT_SOURCE_DIR}/log/logger.cc"
+        "${PROJECT_SOURCE_DIR}/log/logger.h"
         "${PROJECT_SOURCE_DIR}/util/buffer.cc"
         "${PROJECT_SOURCE_DIR}/util/buffer.h"
         "${PROJECT_SOURCE_DIR}/util/copyable.h"
@@ -72,8 +72,9 @@ target_sources(polly PUBLIC
         "${PROJECT_SOURCE_DIR}/util/current_thread.h"
         "${PROJECT_SOURCE_DIR}/util/process_info.cc"
         "${PROJECT_SOURCE_DIR}/util/process_info.h"
-        "${PROJECT_SOURCE_DIR}/include/polly/slice.h"
-        )
+        "${PROJECT_SOURCE_DIR}/util/timestamp.cc"
+        "${PROJECT_SOURCE_DIR}/util/timestamp.h"
+        "${PROJECT_SOURCE_DIR}/include/polly/slice.h")
 
 # tests
 add_subdirectory(tests)

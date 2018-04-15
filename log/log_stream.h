@@ -25,6 +25,8 @@ public:
   }
 
   const char *data() { return buffer_.data(); }
+  size_t size() { return buffer_.size(); }
+  Slice slice() { return Slice(data(), size()); }
 
   self &operator<<(bool);
   self &operator<<(char);
@@ -41,6 +43,7 @@ public:
   self &operator<<(double);
   self &operator<<(const char *);
   self &operator<<(std::string const &);
+  self &operator<<(Slice const &s);
 
 private:
   FixedBuffer<kSmallBufferSize> buffer_;
