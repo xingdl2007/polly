@@ -18,16 +18,16 @@ void AsyncLogging::Append(Slice const &slice) {
   // find valid buffer
   if (cur_buffer_->space() >= slice.size()) {
     cur_buffer_->append(slice);
-  } else if (next_buffer_) {
-    buffers_.push_back(std::move(cur_buffer_));
-
-    cur_buffer_ = std::move(next_buffer_);
-    cur_buffer_->append(slice);
   } else {
     buffers_.push_back(std::move(cur_buffer_));
 
-    cur_buffer_ = std::make_unique<Buffer>();
+    if (next_buffer_) {
+      cur_buffer_ = std::move(next_buffer_);
+    } else {
+      cur_buffer_ = std::make_unique<Buffer>();
+    }
     cur_buffer_->append(slice);
+    cond_.notify_one();
   }
 }
 
@@ -50,7 +50,7 @@ void AsyncLogging::ThreadFunction(std::promise<void> &promise) {
         cond_.wait_for(lock, std::chrono::seconds(3));
       }
       tempBuffer1.swap(cur_buffer_);
-      if (tempBuffer2 == nullptr) {
+      if (next_buffer_ == nullptr) {
         tempBuffer2.swap(next_buffer_);
       }
       tempBuffers.swap(buffers_);
@@ -71,6 +71,9 @@ void AsyncLogging::ThreadFunction(std::promise<void> &promise) {
     tempBuffer2 = std::move(tempBuffers.back());
     tempBuffers.pop_back();
     tempBuffers.clear();
+
+    tempBuffer1->reset();
+    tempBuffer2->reset();
   }
 }
 

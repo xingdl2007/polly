@@ -35,6 +35,8 @@ public:
 
   void bzero() { ::bzero(data_, sizeof data_); }
 
+  void reset() { cur_ = data_; }
+
   // after last element pointer
   char *end() { return data_ + N; }
 
