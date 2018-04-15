@@ -5,6 +5,8 @@
 // LogFile owns an AppendFile all the time. It will roll to another either
 // when current file is too big or in the new day.
 
+#include <assert.h>
+#include "file.h"
 #include "log_file.h"
 #include "util/process_info.h"
 
@@ -13,6 +15,8 @@ namespace polly {
 LogFile::LogFile(std::string const &file) : basename_(file) {
   rollToNewFile();
 }
+
+LogFile::~LogFile() = default;
 
 void LogFile::Append(const Slice &s) {
   static int count = 0;

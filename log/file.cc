@@ -6,6 +6,7 @@
 // is allowed. This class is thread unsafe with the assumption that only
 // one thread can write to the underlying file.
 
+#include "include/polly/slice.h"
 #include "file.h"
 
 namespace polly {

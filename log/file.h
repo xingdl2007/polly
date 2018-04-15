@@ -11,9 +11,10 @@
 
 #include <stdio.h>
 #include <string>
-#include "polly/slice.h"
 
 namespace polly {
+
+class Slice;
 
 class AppendFile {
 public:

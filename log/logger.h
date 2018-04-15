@@ -10,9 +10,8 @@
 #define NETWORK_POLLY_LOG_LOGGING_H_
 
 #include <functional>
-#include <util/timestamp.h>
-#include "log_stream.h"
 #include "util/timestamp.h"
+#include "log_stream.h"
 
 namespace polly {
 

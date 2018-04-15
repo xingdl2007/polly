@@ -8,9 +8,11 @@
 #include <time.h>
 #include <memory>
 #include <mutex>
-#include "file.h"
 
 namespace polly {
+
+class Slice;
+class AppendFile;
 
 // thread unsafe
 class LogFile {
@@ -20,7 +22,7 @@ public:
   LogFile(LogFile const &) = delete;
   LogFile &operator=(LogFile const &) = delete;
 
-  ~LogFile() = default;
+  ~LogFile();
 
   void Append(Slice const &s);
 
