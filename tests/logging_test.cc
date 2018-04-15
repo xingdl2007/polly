@@ -66,8 +66,8 @@ TEST(AsyncLogging, Basic2) {
   }
   std::chrono::nanoseconds elapse = std::chrono::system_clock::now() - start;
   auto seconds = std::chrono::duration_cast<std::chrono::seconds>(elapse).count();
-  auto data = slice.size() * count / 1000000;
-  std::cerr << seconds << " s, " << data * 1.0 / seconds << " MiB/s\n";
+  auto data = slice.size() * count * 1.0 / 1024 / 1024;
+  std::cerr << seconds << " s, " << data / seconds << " MiB/s\n";
 
   // make sure worker thread is waiting
   ::sleep(1);
