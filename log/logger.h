@@ -9,6 +9,7 @@
 #ifndef NETWORK_POLLY_LOG_LOGGING_H_
 #define NETWORK_POLLY_LOG_LOGGING_H_
 
+#include <functional>
 #include <util/timestamp.h>
 #include "log_stream.h"
 #include "util/timestamp.h"
@@ -48,7 +49,7 @@ class Logger {
     size_t size_;
   };
 
-  typedef void (*Destination)(Slice const &);
+  typedef std::function<void(Slice const &)> Destination;
 
 public:
   Logger(SourceFile const &file, int line, LogLevel level);
@@ -70,7 +71,7 @@ private:
   TimeStamp time_;
   LogLevel level_;
 
-  static Destination func_;
+  static std::function<void(Slice const &)> func_;
 };
 
 } // namespace polly

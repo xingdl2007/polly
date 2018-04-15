@@ -99,8 +99,8 @@ void AsyncLogging::StartWorker() {
 
 // wait worker thread exit
 void AsyncLogging::StopWorker() {
-  done = false;
   cond_.notify_one();
+  done = true;
   thread_->join();
 }
 

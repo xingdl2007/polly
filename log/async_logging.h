@@ -25,11 +25,11 @@ public:
   AsyncLogging(AsyncLogging const &) = delete;
   AsyncLogging &operator=(AsyncLogging const &) = delete;
 
-  ~AsyncLogging() = delete;
+  ~AsyncLogging() = default;
 
   void Append(Slice const &);
 
-  void ThreadFunction(std::promise<void>&);
+  void ThreadFunction(std::promise<void> &);
 
   // start distinct thread, write logs to disk file.
   void StartWorker();
