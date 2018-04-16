@@ -37,7 +37,7 @@ Logger::Logger(SourceFile const &file, int line, LogLevel level)
     : file_(file), line_(line), level_(level) {
 
   // timestamp: date + time
-  time_ = TimeStamp::now();
+  time_ = Timestamp::now();
   stream_ << time_.toFormatedString(true) << "Z ";
 
   // thread id

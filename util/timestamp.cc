@@ -20,7 +20,7 @@
 namespace polly {
 
 // second + microsecond
-std::string TimeStamp::toString() const {
+std::string Timestamp::toString() const {
   char buffer[32] = {0};
   int64_t seconds = micro_since_epoch_ / kMicroSecondsPerSecond;
   int64_t micro = micro_since_epoch_ % kMicroSecondsPerSecond;
@@ -28,7 +28,7 @@ std::string TimeStamp::toString() const {
   return buffer;
 }
 
-std::string TimeStamp::toFormatedString(bool showMicroseconds) const {
+std::string Timestamp::toFormatedString(bool showMicroseconds) const {
 
   char buf[32] = {0};
   time_t seconds = static_cast<time_t>(micro_since_epoch_ / kMicroSecondsPerSecond);
@@ -49,10 +49,10 @@ std::string TimeStamp::toFormatedString(bool showMicroseconds) const {
   return buf;
 }
 
-TimeStamp TimeStamp::now() {
+Timestamp Timestamp::now() {
   struct timeval t;
   ::gettimeofday(&t, nullptr);
-  return TimeStamp(t.tv_sec * kMicroSecondsPerSecond + t.tv_usec);
+  return Timestamp(t.tv_sec * kMicroSecondsPerSecond + t.tv_usec);
 }
 
 } // namespace polly

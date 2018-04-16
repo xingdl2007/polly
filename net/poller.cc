@@ -13,13 +13,13 @@ namespace polly {
 // Polls the I/O events;
 // parameters: timeout (the number of milliseconds poll(2) should block
 // waiting before a file descriptor to become ready)
-TimeStamp Poller::Poll(int timeout, ChannelList *active) {
+Timestamp Poller::Poll(int timeout, ChannelList *active) {
   // 1. construct struct pollfd from PollFdList
   // 2. call poll(2)
   // 3. fill active channels when poll(2) returns
   // 4. return now()
   int numEvents = ::poll(&*pollfds_.begin(), pollfds_.size(), timeout);
-  TimeStamp now = TimeStamp::now();
+  Timestamp now = Timestamp::now();
 
   if (numEvents > 0) {
     LOG_TRACE << "Poller::Poll(): " << numEvents << " events happened";

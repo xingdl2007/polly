@@ -67,7 +67,7 @@ private:
   LogStream stream_;
   SourceFile file_;
   int line_;
-  TimeStamp time_;
+  Timestamp time_;
   LogLevel level_;
 
   static std::function<void(Slice const &)> func_;

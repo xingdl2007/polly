@@ -14,7 +14,7 @@ struct pollfd;
 namespace polly {
 
 class Channel;
-class TimeStamp;
+class Timestamp;
 
 // IO Multiplexing with poll(2)
 //
@@ -31,7 +31,7 @@ public:
   ~Poller() = default;
 
   // Polls the I/O events;
-  TimeStamp Poll(int timeout, ChannelList *active);
+  Timestamp Poll(int timeout, ChannelList *active);
 
   // Change the interested I/O events, must be called in the loop thread;
   void UpdateChannel(Channel *channel);

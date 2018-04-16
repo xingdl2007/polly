@@ -42,7 +42,7 @@ void EventLoop::loop() {
     active_channels_.clear();
 
     // -1: wait until some file descriptor ready
-    TimeStamp now = poller->Poll(-1, &active_channels_);
+    Timestamp now = poller->Poll(-1, &active_channels_);
     for (auto const it: active_channels_) {
       it->HandleEvent();
     }
