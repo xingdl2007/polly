@@ -8,6 +8,7 @@
 #include "gtest/gtest.h"
 #include "net/eventloop.h"
 #include "net/channel.h"
+#include "log/logger.h"
 
 using namespace std;
 using namespace polly;
@@ -68,24 +69,14 @@ TEST(EventLoop, SimpleTimer) {
 
 TEST(EventLoop, TimerQueue) {
   EventLoop loop;
+  setLogLevel(LogLevel::TRACE);
 
-  // 1s since
-  loop.RunAfter(1, []() {
-    printf("one shot 1s timeout\n");
-  });
+  loop.RunAfter(1, []() { printf("one shot 1s timeout\n"); });
+  loop.RunEvery(1, []() { printf("1s timeout\n"); });
+  loop.RunEvery(2, []() { printf("2s timeout\n"); });
+  loop.RunEvery(0.3, []() { printf("0.3s timeout\n"); });
 
-  loop.RunEvery(1, []() {
-    printf("1s timeout\n");
-  });
-
-  loop.RunEvery(2, []() {
-    printf("2s timeout\n");
-  });
-
-  loop.RunEvery(0.5, []() {
-    printf("0.5s timeout\n");
-  });
-
+  // after 5s, quit
   loop.RunAt(Timestamp::now() + 5, [&]() {
     printf("5s timeout\n");
     loop.quit();
