@@ -6,6 +6,7 @@
 #define NETWORK_POLLY_NET_EVENTLOOP_THREAD_H_
 
 #include <thread>
+#include <mutex>
 #include <functional>
 
 namespace polly {
