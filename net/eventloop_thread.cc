@@ -8,28 +8,31 @@
 
 namespace polly {
 
-EventLoop *EventLoopThread::Start() {
+void EventLoopThread::Start() {
   std::promise<void> promise;
   thread_ = std::thread([&]() {
     EventLoop loop;
-    loop_ = &loop;
-    
+    {
+      std::lock_guard<std::mutex> lock(mutex_);
+      loop_ = &loop;
+    }
     promise.set_value();
     if (callback_) {
       callback_(&loop);
     }
     loop.loop();
   });
-
   promise.get_future().wait();
-  return loop_;
 }
 
 EventLoopThread::~EventLoopThread() {
-  if (loop_) {
-    loop_->quit();
-  }
   if (thread_.joinable()) {
+    {
+      std::lock_guard<std::mutex> lock(mutex_);
+      if (loop_) {
+        loop_->quit();
+      }
+    }
     thread_.join();
   }
 }

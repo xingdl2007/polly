@@ -23,9 +23,10 @@ public:
 
   ~EventLoopThread();
 
-  EventLoop *Start();
+  void Start();
 
 private:
+  std::mutex mutex_;
   EventLoop *loop_;
   InitialCalback callback_;
   std::thread thread_;

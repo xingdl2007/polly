@@ -99,7 +99,8 @@ TEST(EventLoopThread, Veryfication) {
 
 TEST(EventLoopThread, Basic) {
   std::function<void(EventLoop *)> callback = [](EventLoop *loop) {
-    loop->RunEvery(1, []() { printf("1s timeout\n"); });
+    if (loop != nullptr)
+      loop->RunEvery(1, []() { printf("1s timeout\n"); });
   };
 
   EventLoopThread thread(callback);
