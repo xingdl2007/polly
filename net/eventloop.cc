@@ -6,15 +6,22 @@
 #include <sys/poll.h>
 #include <stdexcept>
 #include "eventloop.h"
+#include "poller.h"
+#include "channel.h"
+#include "log/logger.h"
 
 namespace polly {
 
 thread_local EventLoop *EventLoop::t_loopInThisThread = nullptr;
 
-EventLoop::EventLoop() : looping(false), threadId_(this_thread::tid()) {
-  // LOG_TRACE
+EventLoop::EventLoop() : looping_(false), quit_(false),
+                         threadId_(this_thread::tid()),
+                         poller(std::make_unique<Poller>(this)) {
+  LOG_TRACE << "EVentLoop created in thread " << threadId_;
   if (t_loopInThisThread) {
-    // LOG_FATAL
+    LOG_FATAL << "Another EventLoop " << t_loopInThisThread
+              << " exists in this thread "
+              << threadId_;
     throw std::runtime_error("EventLoop(): another EventLoop already"
                              "exists in this thread");
   } else {
@@ -23,17 +30,34 @@ EventLoop::EventLoop() : looping(false), threadId_(this_thread::tid()) {
 }
 
 EventLoop::~EventLoop() {
-  assert(!looping);
+  assert(!looping_);
   t_loopInThisThread = nullptr;
 }
 
 void EventLoop::loop() {
-  assert(!looping);
+  assert(!looping_);
   assertInLoopThread();
-  looping = true;
+  looping_ = true;
+  quit_ = false;
 
-  ::poll(nullptr, 0, 5 * 1000);
-  looping = false;
+  while (!quit_) {
+    active_channels_.clear();
+
+    // -1: wait until some file descriptor ready
+    TimeStamp now = poller->Poll(-1, &active_channels_);
+    for (auto const it: active_channels_) {
+      it->HandleEvent();
+    }
+    LOG_TRACE << "EventLoop Poll return @" << now.toFormatedString(false);
+  }
+  LOG_TRACE << "EventLoop stop looping";
+  looping_ = false;
+}
+
+void EventLoop::update(Channel *channel) {
+  assert(channel->ownerLoop() == this);
+  assertInLoopThread();
+  poller->UpdateChannel(channel);
 }
 
 void EventLoop::abortNotInLoopThread() {

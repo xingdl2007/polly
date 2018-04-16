@@ -6,9 +6,14 @@
 #define NETWORK_POLLY_NET_EVENTLOOP_H_
 
 #include <unistd.h>
+#include <memory>
+#include <vector>
 #include "util/process_info.h"
 
 namespace polly {
+
+class Poller;
+class Channel;
 
 class EventLoop {
 public:
@@ -32,11 +37,20 @@ public:
     return threadId_ == this_thread::tid();
   }
 
+  void update(Channel *);
+
+  void quit() { quit_ = true; }
+
 private:
+  typedef std::vector<Channel *> ChannelList;
   void abortNotInLoopThread();
 
-  bool looping;
+  bool looping_;
+  bool quit_;
   const pid_t threadId_;
+
+  std::unique_ptr<Poller> poller;
+  ChannelList active_channels_;
 
   // record for IO thread, which construct `this` EventLoop
   thread_local static EventLoop *t_loopInThisThread;
