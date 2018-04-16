@@ -6,6 +6,7 @@
 #include <future>
 #include <sys/timerfd.h>
 #include "gtest/gtest.h"
+#include "net/acceptor.h"
 #include "net/eventloop.h"
 #include "net/eventloop_thread.h"
 #include "net/channel.h"
@@ -107,4 +108,19 @@ TEST(EventLoopThread, Basic) {
   thread.Start();
 
   ::sleep(5);
+}
+
+TEST(Acceptor, Basic) {
+  EventLoop loop;
+
+  InetAddress server("192.168.0.108", 5000);
+  Acceptor acceptor(&loop, server);
+
+  // register new connection callback
+  acceptor.SetNewConnectionCallback([](int connfd, const InetAddress &client) {
+    printf("client: %s, port: %d\n", client.IP(), client.Port());
+    ::write(connfd, "How are you?\n", 13);
+    ::close(connfd);
+  });
+  loop.loop();
 }

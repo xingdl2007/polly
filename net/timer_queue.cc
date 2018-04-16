@@ -5,7 +5,7 @@
 #include <unistd.h>
 #include <sys/timerfd.h>
 #include "eventloop.h"
-#include "timer.h"
+#include "util/timer.h"
 #include "timer_queue.h"
 #include "log/logger.h"
 

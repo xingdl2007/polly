@@ -53,16 +53,19 @@ include(gtest.cmake)
 
 # all public for now
 target_sources(polly PUBLIC
+        "${PROJECT_SOURCE_DIR}/net/acceptor.cc"
+        "${PROJECT_SOURCE_DIR}/net/acceptor.h"
         "${PROJECT_SOURCE_DIR}/net/channel.cc"
         "${PROJECT_SOURCE_DIR}/net/channel.h"
         "${PROJECT_SOURCE_DIR}/net/eventloop.cc"
         "${PROJECT_SOURCE_DIR}/net/eventloop.h"
         "${PROJECT_SOURCE_DIR}/net/eventloop_thread.cc"
         "${PROJECT_SOURCE_DIR}/net/eventloop_thread.h"
+        "${PROJECT_SOURCE_DIR}/net/inetaddress.h"
         "${PROJECT_SOURCE_DIR}/net/poller.cc"
         "${PROJECT_SOURCE_DIR}/net/poller.h"
-        "${PROJECT_SOURCE_DIR}/net/timer.cc"
-        "${PROJECT_SOURCE_DIR}/net/timer.h"
+        "${PROJECT_SOURCE_DIR}/net/socket.cc"
+        "${PROJECT_SOURCE_DIR}/net/socket.h"
         "${PROJECT_SOURCE_DIR}/net/timer_queue.cc"
         "${PROJECT_SOURCE_DIR}/net/timer_queue.h"
         "${PROJECT_SOURCE_DIR}/log/async_logging.cc"
@@ -80,6 +83,8 @@ target_sources(polly PUBLIC
         "${PROJECT_SOURCE_DIR}/util/copyable.h"
         "${PROJECT_SOURCE_DIR}/util/process_info.cc"
         "${PROJECT_SOURCE_DIR}/util/process_info.h"
+        "${PROJECT_SOURCE_DIR}/util/timer.cc"
+        "${PROJECT_SOURCE_DIR}/util/timer.h"
         "${PROJECT_SOURCE_DIR}/util/timestamp.cc"
         "${PROJECT_SOURCE_DIR}/util/timestamp.h"
         "${PROJECT_SOURCE_DIR}/include/polly/slice.h")
