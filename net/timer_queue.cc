@@ -4,9 +4,10 @@
 
 #include <unistd.h>
 #include <sys/timerfd.h>
-#include "log/logger.h"
+#include "eventloop.h"
 #include "timer.h"
 #include "timer_queue.h"
+#include "log/logger.h"
 
 namespace polly {
 
@@ -94,6 +95,7 @@ TimerQueue::TimerTable TimerQueue::GetExpired(Timestamp now) {
 
 void TimerQueue::AddTimer(const TimerCallback &cb, Timestamp when,
                           double interval) {
+  loop_->assertInLoopThread();
   bool needUpdate = false;
   if (timers_.empty() || when < timers_.begin()->second->Expiration()) {
     needUpdate = true;

@@ -57,6 +57,8 @@ target_sources(polly PUBLIC
         "${PROJECT_SOURCE_DIR}/net/channel.h"
         "${PROJECT_SOURCE_DIR}/net/eventloop.cc"
         "${PROJECT_SOURCE_DIR}/net/eventloop.h"
+        "${PROJECT_SOURCE_DIR}/net/eventloop_thread.cc"
+        "${PROJECT_SOURCE_DIR}/net/eventloop_thread.h"
         "${PROJECT_SOURCE_DIR}/net/poller.cc"
         "${PROJECT_SOURCE_DIR}/net/poller.h"
         "${PROJECT_SOURCE_DIR}/net/timer.cc"

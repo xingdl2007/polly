@@ -7,6 +7,7 @@
 #include <sys/timerfd.h>
 #include "gtest/gtest.h"
 #include "net/eventloop.h"
+#include "net/eventloop_thread.h"
 #include "net/channel.h"
 #include "log/logger.h"
 
@@ -83,4 +84,26 @@ TEST(EventLoop, TimerQueue) {
   });
 
   loop.loop();
+}
+
+TEST(EventLoopThread, Veryfication) {
+  using InitialCalback = std::function<void(EventLoop *)>;
+
+  auto func = InitialCalback();
+  if (func) {
+    std::cerr << "OK" << '\n';
+  } else {
+    std::cerr << "Not OK" << '\n';
+  }
+}
+
+TEST(EventLoopThread, Basic) {
+  std::function<void(EventLoop *)> callback = [](EventLoop *loop) {
+    loop->RunEvery(1, []() { printf("1s timeout\n"); });
+  };
+
+  EventLoopThread thread(callback);
+  thread.Start();
+
+  ::sleep(5);
 }
