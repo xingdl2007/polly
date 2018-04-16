@@ -4,8 +4,10 @@
 
 #include <thread>
 #include <future>
+#include <sys/timerfd.h>
 #include "gtest/gtest.h"
 #include "net/eventloop.h"
+#include "net/channel.h"
 
 using namespace std;
 using namespace polly;
@@ -43,7 +45,23 @@ TEST(EventLoop, CurrentThread) {
   }
 }
 
-TEST(EventLoop, Basic) {
-  EventLoop l;
-  l.loop();
+TEST(EventLoop, SimpleTimer) {
+  EventLoop loop;
+  int timerfd = ::timerfd_create(CLOCK_MONOTONIC, TFD_NONBLOCK | TFD_CLOEXEC);
+
+  Channel channel(&loop, timerfd);
+  channel.SetReadCallback([&]() {
+    loop.quit();
+    printf("Timeout!\n");
+  });
+  channel.EnableReading();
+
+  // one shot timer
+  struct itimerspec howlong;
+  bzero(&howlong, sizeof howlong);
+  howlong.it_value.tv_sec = 5;
+
+  ::timerfd_settime(timerfd, 0, &howlong, nullptr);
+
+  loop.loop();
 }

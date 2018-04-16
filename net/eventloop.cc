@@ -19,9 +19,7 @@ EventLoop::EventLoop() : looping_(false), quit_(false),
                          poller(std::make_unique<Poller>(this)) {
   LOG_TRACE << "EVentLoop created in thread " << threadId_;
   if (t_loopInThisThread) {
-    LOG_FATAL << "Another EventLoop " << t_loopInThisThread
-              << " exists in this thread "
-              << threadId_;
+    LOG_FATAL << "Another EventLoop already exists in this thread ";
     throw std::runtime_error("EventLoop(): another EventLoop already"
                              "exists in this thread");
   } else {
