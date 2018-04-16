@@ -6,6 +6,7 @@
 #define NETWORK_POLLY_NET_TIMER_H_
 
 #include <functional>
+#include <atomic>
 #include "util/timestamp.h"
 
 namespace polly {
@@ -14,8 +15,7 @@ class Timer {
   using TimerCallBack = std::function<void()>;
 
 public:
-  Timer(const TimerCallBack &cb, Timestamp ts, double interval)
-      : callback_(cb), expiration_(ts), repeat_(interval > 0.0), interval_(interval) {}
+  Timer(const TimerCallBack &cb, Timestamp ts, double interval);
 
   Timer(Timer const &) = delete;
   Timer &operator=(Timer const &) = delete;
@@ -34,11 +34,18 @@ public:
     }
   }
 
+  bool isRepeat() { return repeat_; }
+
+  Timestamp Expiration() { return expiration_; }
+
 private:
   const TimerCallBack callback_;
   Timestamp expiration_;
   const bool repeat_;
   const double interval_; // seconds
+  const int64_t seq_num_;
+
+  static std::atomic<int64_t> CreatedNum_;
 };
 
 } // namespace polly

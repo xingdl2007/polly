@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include "gtest/gtest.h"
+#include "net/eventloop.h"
 #include "net/timer.h"
 #include "net/timer_queue.h"
 
@@ -11,17 +12,40 @@ using namespace std;
 using namespace polly;
 
 TEST(Timer, Basic) {
-  std::map<int, std::unique_ptr<int>> imap;
+  EventLoop loop;
+  TimerQueue queue(&loop);
 
-  imap.emplace(2, std::make_unique<int>(2));
-  imap.emplace(1, std::make_unique<int>(1));
-  imap.emplace(3, std::make_unique<int>(3));
+  // after 1s from now
+  queue.AddTimer([&]() {
+    printf("1s timeout!\n");
+    loop.quit();
+  }, Timestamp::now() + 1, 1);
 
-  for (auto it = imap.cbegin(); it != imap.cend(); ++it) {
-    std::cerr << it->first << " " << *(it->second) << '\n';
-  }
+  loop.loop();
 }
 
 TEST(TimerQueue, Basic) {
+  EventLoop loop;
+  TimerQueue queue(&loop);
 
+  // after 1s from now
+  queue.AddTimer([]() {
+    printf("1s timeout!\n");
+  }, Timestamp::now() + 1, 1);
+
+  // after 2s from now
+  queue.AddTimer([]() {
+    printf("2s timeout!\n");
+  }, Timestamp::now() + 2, 2);
+
+  queue.AddTimer([]() {
+    printf("0.5s timeout!\n");
+  }, Timestamp::now() + 0.5, 0.5);
+
+  queue.AddTimer([&]() {
+    printf("quit after 5s!\n");
+    loop.quit();
+  }, Timestamp::now() + 5, 0);
+
+  loop.loop();
 }

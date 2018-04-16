@@ -28,6 +28,10 @@ public:
     return Timestamp(micro_since_epoch_ + delta);
   }
 
+  int64_t microSecondsSinceEpoch() { return micro_since_epoch_; }
+
+  bool valid() { return micro_since_epoch_ != 0 || micro_since_epoch_ != -1; }
+
 private:
   int64_t micro_since_epoch_;  // microseconds since epoch
 };
