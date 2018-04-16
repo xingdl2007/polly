@@ -32,8 +32,8 @@ void Acceptor::listen() {
 }
 
 void Acceptor::handleRead() {
-  sockaddr_in addr_;
-  socklen_t len;
+  sockaddr_in addr_ = {};
+  socklen_t len = sizeof addr_;
   int connfd = ::accept4(listen_socket_.fd(), reinterpret_cast<sockaddr *>(&addr_),
                          &len, SOCK_NONBLOCK | SOCK_CLOEXEC);
   if (connfd < 0) {
