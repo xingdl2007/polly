@@ -9,6 +9,7 @@
 #include "poller.h"
 #include "channel.h"
 #include "log/logger.h"
+#include "util/timestamp.h"
 
 namespace polly {
 
@@ -16,7 +17,8 @@ thread_local EventLoop *EventLoop::t_loopInThisThread = nullptr;
 
 EventLoop::EventLoop() : looping_(false), quit_(false),
                          threadId_(this_thread::tid()),
-                         poller(std::make_unique<Poller>(this)) {
+                         poller(std::make_unique<Poller>(this)),
+                         timers_(this) {
   LOG_TRACE << "EVentLoop created in thread " << threadId_;
   if (t_loopInThisThread) {
     LOG_FATAL << "Another EventLoop already exists in this thread ";
@@ -60,6 +62,18 @@ void EventLoop::update(Channel *channel) {
 
 void EventLoop::abortNotInLoopThread() {
   throw std::runtime_error("abortNotInLoopThread()");
+}
+
+void EventLoop::RunAt(const Timestamp &ts, const TimeCallback &cb) {
+  timers_.AddTimer(cb, ts, 0);
+}
+
+void EventLoop::RunAfter(const double delay, const TimeCallback &cb) {
+  timers_.AddTimer(cb, Timestamp::now() + delay, 0);
+}
+
+void EventLoop::RunEvery(double interval, const TimeCallback &cb) {
+  timers_.AddTimer(cb, Timestamp::now() + interval, interval);
 }
 
 } // namespace polly

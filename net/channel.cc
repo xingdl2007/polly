@@ -17,7 +17,7 @@ Channel::Channel(EventLoop *loop, int fd) : loop_(loop), fd_(fd),
                                             events_(0), revents_(0),
                                             index_(-1) {}
 
-void Channel::HandleEvent() const{
+void Channel::HandleEvent() const {
   if (revents_ & POLLNVAL) {
     LOG_WARNING << "Channel::HandleEvent() POLLNVAL";
   }

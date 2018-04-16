@@ -59,9 +59,37 @@ TEST(EventLoop, SimpleTimer) {
   // one shot timer
   struct itimerspec howlong;
   bzero(&howlong, sizeof howlong);
-  howlong.it_value.tv_sec = 5;
+  howlong.it_value.tv_sec = 2;
 
   ::timerfd_settime(timerfd, 0, &howlong, nullptr);
+
+  loop.loop();
+}
+
+TEST(EventLoop, TimerQueue) {
+  EventLoop loop;
+
+  // 1s since
+  loop.RunAfter(1, []() {
+    printf("one shot 1s timeout\n");
+  });
+
+  loop.RunEvery(1, []() {
+    printf("1s timeout\n");
+  });
+
+  loop.RunEvery(2, []() {
+    printf("2s timeout\n");
+  });
+
+  loop.RunEvery(0.5, []() {
+    printf("0.5s timeout\n");
+  });
+
+  loop.RunAt(Timestamp::now() + 5, [&]() {
+    printf("5s timeout\n");
+    loop.quit();
+  });
 
   loop.loop();
 }
