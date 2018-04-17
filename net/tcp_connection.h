@@ -25,7 +25,6 @@ class TcpConnection : public std::enable_shared_from_this<TcpConnection> {
   using MessageCallback = std::function<void(const TcpConnectionPtr &,
                                              Buffer *,
                                              Timestamp)>;
-
 public:
   TcpConnection(EventLoop *loop, std::string name, int conn_fd, const InetAddress remote);
 
@@ -35,6 +34,20 @@ public:
   ~TcpConnection() = default;
 
   std::string name() { return name_; }
+  char *remoteIP() { return remote_addr_.IP(); }
+  int remotePort() { return remote_addr_.Port(); }
+
+  void HandleRead();
+
+  void SetConnectionCallback(const ConnectionCallback &cb) {
+    conn_callback_ = cb;
+  }
+
+  void SetMessageCallback(const MessageCallback &cb) {
+    msg_callback_ = cb;
+  }
+
+  void ConnectEstablished();
 
 private:
   enum State { kConnecting, kConnected };

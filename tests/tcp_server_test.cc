@@ -18,14 +18,24 @@ using namespace std;
 using namespace polly;
 
 TEST(TcpServer, Basic) {
+  setLogLevel(LogLevel::WARN);
   EventLoop loop;
-  setLogLevel(LogLevel::TRACE);
 
   InetAddress addr("127.0.0.1", 5000);
   TcpServer server(&loop, addr, "test");
 
   server.SetConnectionCallback([](const TcpConnectionPtr &conn) {
-    cout << "you are " << conn->name() << '\n';
+    cerr << "onConnection(): new connection [" << conn->name() << "] from "
+         << conn->remoteIP() << " : " << conn->remotePort() << '\n';
+  });
+
+  server.SetMessageCallback([](const TcpConnectionPtr &conn,
+                               Buffer *buffer,
+                               Timestamp time) {
+    if (buffer->size() > 0) {
+      std::cerr << "onMessage(): received " << buffer->size()
+                << " bytes from " << conn->name() << '\n';
+    }
   });
 
   server.Start();

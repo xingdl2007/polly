@@ -53,8 +53,9 @@ private:
 template class FixedBuffer<kSmallBufferSize>;
 
 // for send/receive TCP byte stream, application level buffer
-class Buffer {
-
+class Buffer : public Slice {
+public:
+  Buffer(const char *d, size_t s) : Slice(d, s) {}
 };
 
 } // namespace polly
