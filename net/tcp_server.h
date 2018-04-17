@@ -29,7 +29,7 @@ public:
   TcpServer(TcpServer const &) = delete;
   TcpServer &operator=(TcpServer const &) = delete;
 
-  ~TcpServer() = default;
+  ~TcpServer();
 
   // Start the server if it's not listening.
   void Start();

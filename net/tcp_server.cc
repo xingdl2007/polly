@@ -46,4 +46,6 @@ void TcpServer::Start() {
   acceptor_->listen();
 }
 
+TcpServer::~TcpServer() = default;
+
 } //namespace polly

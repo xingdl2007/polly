@@ -18,12 +18,13 @@ using namespace std;
 using namespace polly;
 
 TEST(TcpConnection, Echo) {
-  setLogLevel(LogLevel::WARN);
+  setLogLevel(LogLevel::TRACE);
   EventLoop loop;
 
   InetAddress addr("127.0.0.1", 5000);
   TcpServer server(&loop, addr, "test");
 
+  // only On connection, no message when connection is closed by client
   server.SetConnectionCallback([](const std::shared_ptr<TcpConnection> &conn) {
     cerr << "onConnection(): new connection [" << conn->name() << "] from "
          << conn->remoteIP() << " : " << conn->remotePort() << '\n';

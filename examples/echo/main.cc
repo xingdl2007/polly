@@ -2,22 +2,41 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file. See the AUTHORS file for names of contributors.
 
-#include <unistd.h>
-#include <fcntl.h>
-#include <fstream>
+#include <iostream>
+#include "net/eventloop.h"
+#include "net/inetaddress.h"
+#include "net/tcp_server.h"
+#include "net/tcp_connection.h"
+#include "util/buffer.h"
+
+using namespace std;
+using namespace polly;
 
 int main() {
-  // flush does not call fsync, just like fflush()
-  std::fstream file("test.log");
-  file << "from file stream";
-  file.flush();
-  file.close();
+  setLogLevel(LogLevel::WARN);
+  EventLoop loop;
 
-  // fsync
-  char buffer[32] = "hello test.log\n";
-  int fd = ::open("test.log", O_WRONLY, "ae");
-  ::write(fd, buffer, sizeof buffer);
-  ::fsync(fd);
-  ::close(fd);
-  return 0;
+  InetAddress addr("127.0.0.1", 5000);
+  TcpServer server(&loop, addr, "test");
+
+  // only On connection, no message when connection is closed by client
+  server.SetConnectionCallback([](const std::shared_ptr<TcpConnection> &conn) {
+    cerr << "onConnection(): new connection [" << conn->name() << "] from "
+         << conn->remoteIP() << " : " << conn->remotePort() << '\n';
+  });
+
+  server.SetMessageCallback([](const std::shared_ptr<TcpConnection> &conn,
+                               Buffer *buffer,
+                               Timestamp time) {
+    std::cerr << "onMessage(): received " << buffer->readableBytes()
+              << " bytes from " << conn->name() << '\n';
+
+    std::string msg(buffer->peek(), buffer->readableBytes());
+    buffer->retrieveAll();
+
+    conn->Send(msg);
+  });
+
+  server.Start();
+  loop.loop();
 }
