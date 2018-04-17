@@ -122,7 +122,26 @@ TEST(Acceptor, Basic) {
     ::write(connfd, "How are you?\n", 13);
     ::close(connfd);
   });
-  
+
   acceptor.listen();
   loop.loop();
+}
+
+TEST(EventLoopThread, RunInLoop) {
+  std::function<void(EventLoop *)> callback = [](EventLoop *loop) {
+    if (loop != nullptr)
+      loop->RunAfter(1, []() { printf("1s timeout\n"); });
+  };
+
+  setLogLevel(LogLevel::WARN);
+  EventLoopThread thread(callback);
+  thread.Start();
+
+  // another thread's event loop
+  auto *remote_loop = thread.eventLoop();
+  remote_loop->RunInLoop([&]() {
+    remote_loop->RunEvery(0.5, []() { printf("0.5s timeout\n"); });
+  });
+
+  ::sleep(5);
 }

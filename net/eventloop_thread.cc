@@ -25,6 +25,11 @@ void EventLoopThread::Start() {
   promise.get_future().wait();
 }
 
+EventLoop *EventLoopThread::eventLoop() {
+  std::lock_guard<std::mutex> lock(mutex_);
+  return loop_;
+}
+
 EventLoopThread::~EventLoopThread() {
   if (thread_.joinable()) {
     {

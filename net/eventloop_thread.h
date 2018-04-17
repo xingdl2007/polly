@@ -26,6 +26,8 @@ public:
 
   void Start();
 
+  EventLoop *eventLoop();
+
 private:
   std::mutex mutex_;
   EventLoop *loop_;

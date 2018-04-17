@@ -5,6 +5,7 @@
 #include <assert.h>
 #include <sys/poll.h>
 #include <stdexcept>
+#include <sys/eventfd.h>
 #include "eventloop.h"
 #include "poller.h"
 #include "channel.h"
@@ -13,12 +14,24 @@
 
 namespace polly {
 
+int createEventfd() {
+  int evtfd = ::eventfd(0, EFD_NONBLOCK | EFD_CLOEXEC);
+  if (evtfd < 0) {
+    LOG_ERROR << "Failed in eventfd";
+    abort();
+  }
+  return evtfd;
+}
+
 thread_local EventLoop *EventLoop::t_loopInThisThread = nullptr;
 
 EventLoop::EventLoop() : looping_(false), quit_(false),
+                         callingPendingFunctors_(false),
                          threadId_(this_thread::tid()),
                          poller(std::make_unique<Poller>(this)),
-                         timers_(this) {
+                         timers_(this), wakeup_fd_(createEventfd()),
+                         wakeup_channel_(std::make_unique<Channel>
+                                             (this, wakeup_fd_)) {
   LOG_TRACE << "EVentLoop created in thread " << threadId_;
   if (t_loopInThisThread) {
     LOG_FATAL << "Another EventLoop already exists in this thread ";
@@ -27,6 +40,11 @@ EventLoop::EventLoop() : looping_(false), quit_(false),
   } else {
     t_loopInThisThread = this;
   }
+
+  // for wake up
+  wakeup_channel_->SetReadCallback([this]() {
+    this->handleRead();
+  });
 }
 
 EventLoop::~EventLoop() {
@@ -50,17 +68,39 @@ void EventLoop::loop() {
       it->HandleEvent();
     }
     LOG_TRACE << "EventLoop Poll return @" << now.toFormatedString(false);
+
+    doPendingFunctors();
   }
   LOG_TRACE << "EventLoop stop looping";
   looping_ = false;
 }
 
+// update: register/delete
 void EventLoop::update(Channel *channel) {
   assert(channel->ownerLoop() == this);
   assertInLoopThread();
   poller->UpdateChannel(channel);
 }
 
+// for waking up from blocking poll
+void EventLoop::wakeup() {
+  uint64_t one = 1;
+  ssize_t n = ::write(wakeup_fd_, &one, sizeof one);
+  if (n != sizeof one) {
+    LOG_ERROR << "EventLoop::wakeup() writes " << n << " bytes instead of 8";
+  }
+}
+
+// level trigger, must read
+void EventLoop::handleRead() {
+  uint64_t one = 1;
+  ssize_t n = ::read(wakeup_fd_, &one, sizeof one);
+  if (n != sizeof one) {
+    LOG_ERROR << "EventLoop::handleRead() reads " << n << " bytes instead of 8";
+  }
+}
+
+// just throw
 void EventLoop::abortNotInLoopThread() {
   throw std::runtime_error("abortNotInLoopThread()");
 }
@@ -75,6 +115,29 @@ void EventLoop::RunAfter(const double delay, const TimeCallback &cb) {
 
 void EventLoop::RunEvery(double interval, const TimeCallback &cb) {
   timers_.AddTimer(cb, Timestamp::now() + interval, interval);
+}
+
+void EventLoop::RunInLoop(const Functor &cb) {
+  if (isInLoopThread()) {
+    cb();
+  } else {
+    {
+      std::lock_guard<std::mutex> lock(mutex_);
+      functors_.push_back(cb);
+    }
+    wakeup();
+  }
+}
+
+void EventLoop::doPendingFunctors() {
+  std::vector<Functor> works;
+  {
+    std::lock_guard<std::mutex> lock(mutex_);
+    works.swap(functors_);
+  }
+  for (auto &w: works) {
+    w();
+  }
 }
 
 } // namespace polly

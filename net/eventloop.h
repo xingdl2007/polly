@@ -9,6 +9,7 @@
 #include <memory>
 #include <vector>
 #include <functional>
+#include <mutex>
 #include "util/process_info.h"
 #include "timer_queue.h"
 
@@ -20,13 +21,16 @@ class Timestamp;
 
 class EventLoop {
   using TimeCallback = std::function<void()>;
+  using Functor = std::function<void()>;
+
 public:
   EventLoop();
-  ~EventLoop();
 
   // disable copy
   EventLoop(EventLoop const &) = delete;
   EventLoop &operator=(EventLoop const &) = delete;
+
+  ~EventLoop();
 
   // will block in invoking thread
   void loop();
@@ -43,25 +47,44 @@ public:
 
   void update(Channel *);
 
-  void quit() { quit_ = true; }
+  void quit() {
+    quit_ = true;
+    // wake up
+    wakeup();
+  }
 
   // timer related
   void RunAt(const Timestamp &ts, const TimeCallback &cb);
   void RunAfter(const double delay, const TimeCallback &cb);
   void RunEvery(double interval, const TimeCallback &cb);
 
+  // working queue
+  void RunInLoop(const Functor &);
+
 private:
   typedef std::vector<Channel *> ChannelList;
+
+  void doPendingFunctors();
   void abortNotInLoopThread();
+  void wakeup();
+  void handleRead();
 
   bool looping_;
   bool quit_;
+  bool callingPendingFunctors_;
   const pid_t threadId_;
 
   std::unique_ptr<Poller> poller;
   ChannelList active_channels_;
 
   TimerQueue timers_;
+
+  // for wake up eventloop
+  int wakeup_fd_;
+  std::unique_ptr<Channel> wakeup_channel_;
+
+  std::mutex mutex_;
+  std::vector<Functor> functors_;
 
   // record for IO thread, which construct `this` EventLoop
   thread_local static EventLoop *t_loopInThisThread;
