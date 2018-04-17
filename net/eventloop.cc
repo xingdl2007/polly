@@ -46,6 +46,7 @@ void EventLoop::loop() {
     // -1: wait until some file descriptor ready
     Timestamp now = poller->Poll(-1, &active_channels_);
     for (auto const it: active_channels_) {
+      LOG_INFO << "EventLoop::loop(), channel " << it->fd() << " have event";
       it->HandleEvent();
     }
     LOG_TRACE << "EventLoop Poll return @" << now.toFormatedString(false);

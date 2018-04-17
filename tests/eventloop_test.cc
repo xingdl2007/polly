@@ -122,5 +122,7 @@ TEST(Acceptor, Basic) {
     ::write(connfd, "How are you?\n", 13);
     ::close(connfd);
   });
+  
+  acceptor.listen();
   loop.loop();
 }

@@ -35,14 +35,13 @@ Timestamp Poller::Poll(int timeout, ChannelList *active) {
 // Change the interested I/O events, must be called in the loop thread;
 void Poller::UpdateChannel(Channel *channel) {
   assertInLoopThread();
-  LOG_TRACE << "fd = " << channel->fd() << " events = " << channel->events();
+  LOG_INFO << "fd = " << channel->fd() << " events = " << channel->events();
   if (channel->index() < 0) {
     // a new one, add to pollfds_
     assert(channels_.find(channel->fd()) == channels_.end());
     struct pollfd pfd = {
         channel->fd(),
         static_cast<short>(channel->events()),
-        0
     };
     pollfds_.push_back(pfd);
     channel->index(static_cast<int>(pollfds_.size() - 1));

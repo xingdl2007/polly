@@ -19,8 +19,6 @@ Acceptor::Acceptor(EventLoop *loop, const InetAddress &listen_addr)
     this->handleRead();
   });
   listen_channel_.EnableReading();
-
-  listen();
 }
 
 void Acceptor::listen() {
@@ -32,6 +30,8 @@ void Acceptor::listen() {
 }
 
 void Acceptor::handleRead() {
+  LOG_INFO << "Acceptor::HandleRead";
+
   sockaddr_in addr_ = {};
   socklen_t len = sizeof addr_;
   int connfd = ::accept4(listen_socket_.fd(), reinterpret_cast<sockaddr *>(&addr_),
@@ -41,7 +41,7 @@ void Acceptor::handleRead() {
     ::abort();
   }
 
-  LOG_TRACE << "new connection " << connfd << ", ip: " << addr_.sin_addr.s_addr
+  LOG_TRACE << "Acceptor: new connection " << connfd << ", ip: " << addr_.sin_addr.s_addr
             << " port: " << addr_.sin_port;
 
   // new Connection callback

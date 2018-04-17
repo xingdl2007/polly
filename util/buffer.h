@@ -52,6 +52,11 @@ private:
 // explicit instantiations
 template class FixedBuffer<kSmallBufferSize>;
 
+// for send/receive TCP byte stream, application level buffer
+class Buffer {
+
+};
+
 } // namespace polly
 
 #endif //NETWORK_POLLY_UTIL_BUFFER_H_

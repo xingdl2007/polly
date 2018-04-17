@@ -73,6 +73,8 @@ TimerQueue::~TimerQueue() {
 
 // called when timerfd alarms
 void TimerQueue::HandleRead() {
+  LOG_INFO << "TimerQueue::HandleRead";
+
   Timestamp now(Timestamp::now());
   readTimerfd(timerfd_, now);
 

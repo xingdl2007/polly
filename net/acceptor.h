@@ -29,9 +29,10 @@ public:
     new_conn_callback_ = cb;
   }
 
+  void listen();
+
 private:
   void handleRead();
-  void listen();
 
   EventLoop *loop_;
   Socket listen_socket_;

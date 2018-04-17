@@ -13,3 +13,6 @@ target_link_libraries(t_logging polly libgtest libgtest_main)
 # timer/timer_queue
 add_executable(t_timer timer_queue_test.cc)
 target_link_libraries(t_timer polly libgtest libgtest_main)
+
+add_executable(t_tcp_server tcp_server_test.cc)
+target_link_libraries(t_tcp_server polly libgtest libgtest_main)
