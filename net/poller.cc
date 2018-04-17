@@ -32,6 +32,24 @@ Timestamp Poller::Poll(int timeout, ChannelList *active) {
   return now;
 }
 
+void Poller::fillActiveChannels(int numEvents, ChannelList *active) const {
+  for (auto const &it: pollfds_) {
+    if (it.fd >= 0 && it.revents > 0) {
+      auto ch = channels_.find(it.fd);
+      assert(ch != channels_.end());
+
+      Channel *channel = ch->second;
+      assert(channel->fd() == it.fd);
+
+      channel->revents(it.revents);
+      active->push_back(channel);
+
+      if (--numEvents == 0)
+        break;
+    }
+  }
+}
+
 // Change the interested I/O events, must be called in the loop thread;
 void Poller::UpdateChannel(Channel *channel) {
   assertInLoopThread();
@@ -41,8 +59,7 @@ void Poller::UpdateChannel(Channel *channel) {
     assert(channels_.find(channel->fd()) == channels_.end());
     struct pollfd pfd = {
         channel->fd(),
-        static_cast<short>(channel->events()),
-        0
+        static_cast<short>(channel->events()), 0
     };
     pollfds_.push_back(pfd);
     channel->index(static_cast<int>(pollfds_.size() - 1));
@@ -65,26 +82,6 @@ void Poller::UpdateChannel(Channel *channel) {
     if (channel->isNoneEvent()) {
       channels_.erase(pfd.fd);
       pollfds_.erase(pollfds_.begin() + idx);
-      //pfd.fd = -1;
-    }
-  }
-}
-
-void Poller::fillActiveChannels(int numEvents, ChannelList *active) const {
-  for (auto const &it: pollfds_) {
-    if (it.fd >= 0 && it.revents > 0) {
-      auto ch = channels_.find(it.fd);
-      assert(ch != channels_.end());
-
-      Channel *channel = ch->second;
-      assert(channel->fd() == it.fd);
-
-      channel->revents(it.revents);
-      active->push_back(channel);
-
-      if (--numEvents == 0) {
-        break;
-      }
     }
   }
 }
