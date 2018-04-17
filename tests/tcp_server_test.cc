@@ -32,7 +32,7 @@ TEST(TcpServer, Basic) {
   server.SetMessageCallback([](const std::shared_ptr<TcpConnection> &conn,
                                Buffer *buffer,
                                Timestamp time) {
-    std::cerr << "onMessage(): received " << buffer->size()
+    std::cerr << "onMessage(): received " << buffer->readableBytes()
               << " bytes from " << conn->name() << '\n';
   });
 

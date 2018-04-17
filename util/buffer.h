@@ -55,11 +55,9 @@ private:
 template class FixedBuffer<kSmallBufferSize>;
 
 // for send/receive TCP byte stream, application level buffer
-class Buffer : public Slice {
+class Buffer {
 public:
-  Buffer(const char *d, size_t s) : Slice(d, s) {}
-
-  explicit Buffer(size_t initialSize = kInitialSize)
+  Buffer(size_t initialSize = kInitialSize)
       : buffer_(kCheapPrepend + initialSize), readerIndex_(kCheapPrepend),
         writerIndex_(kCheapPrepend) {
     assert(readableBytes() == 0);

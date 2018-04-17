@@ -23,15 +23,13 @@ TcpConnection::TcpConnection(EventLoop *loop, std::string name, int conn_fd, con
 
 void TcpConnection::HandleRead() {
   LOG_TRACE << "TcpConnection::HandleRead()";
-  char data[65536];
-
-  ssize_t n = ::read(channel_->fd(), data, sizeof data);
-  Buffer buf(data, n);
+  Buffer buffer;
+  ssize_t n = buffer.readFd(channel_->fd(), nullptr);
 
   LOG_TRACE << "TcpConnection::onMessage()";
   if (n > 0) {
     if (msg_callback_) {
-      msg_callback_(shared_from_this(), &buf, Timestamp::now());
+      msg_callback_(shared_from_this(), &buffer, Timestamp::now());
     }
   } else if (n == 0) {
     HandleClose();
