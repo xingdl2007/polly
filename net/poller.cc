@@ -53,7 +53,7 @@ void Poller::fillActiveChannels(int numEvents, ChannelList *active) const {
 // Change the interested I/O events, must be called in the loop thread;
 void Poller::UpdateChannel(Channel *channel) {
   assertInLoopThread();
-  LOG_INFO << "fd = " << channel->fd() << " events = " << channel->events();
+  LOG_TRACE << "fd = " << channel->fd() << " events = " << channel->events();
   if (channel->index() < 0) {
     // a new one, add to pollfds_
     assert(channels_.find(channel->fd()) == channels_.end());

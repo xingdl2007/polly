@@ -73,7 +73,7 @@ TimerQueue::~TimerQueue() {
 
 // called when timerfd alarms
 void TimerQueue::HandleRead() {
-  LOG_INFO << "TimerQueue::HandleRead";
+  LOG_TRACE << "TimerQueue::HandleRead";
 
   Timestamp now(Timestamp::now());
   readTimerfd(timerfd_, now);
@@ -95,7 +95,13 @@ TimerQueue::TimerTable TimerQueue::GetExpired(Timestamp now) {
   return expired;
 };
 
+// for all threads
 void TimerQueue::AddTimer(const TimerCallback &cb, Timestamp when,
+                          double interval) {
+  loop_->RunInLoop([&]() { this->addTimer(cb, when, interval); });
+}
+
+void TimerQueue::addTimer(const TimerCallback &cb, Timestamp when,
                           double interval) {
   loop_->assertInLoopThread();
   bool needUpdate = false;

@@ -45,11 +45,13 @@ EventLoop::EventLoop() : looping_(false), quit_(false),
   wakeup_channel_->SetReadCallback([this]() {
     this->handleRead();
   });
+  wakeup_channel_->EnableReading();
 }
 
 EventLoop::~EventLoop() {
   assert(!looping_);
   t_loopInThisThread = nullptr;
+  ::close(wakeup_fd_);
 }
 
 void EventLoop::loop() {
@@ -64,11 +66,12 @@ void EventLoop::loop() {
     // -1: wait until some file descriptor ready
     Timestamp now = poller->Poll(-1, &active_channels_);
     for (auto const it: active_channels_) {
-      LOG_INFO << "EventLoop::loop(), channel " << it->fd() << " have event";
+      LOG_TRACE << "EventLoop::loop(), channel " << it->fd() << " have event";
       it->HandleEvent();
     }
     LOG_TRACE << "EventLoop Poll return @" << now.toFormatedString(false);
 
+    // start processing pending works
     doPendingFunctors();
   }
   LOG_TRACE << "EventLoop stop looping";
@@ -124,6 +127,7 @@ void EventLoop::RunInLoop(const Functor &cb) {
     {
       std::lock_guard<std::mutex> lock(mutex_);
       functors_.push_back(cb);
+      LOG_TRACE << "EventLoop::RunInLoop() add a new functor";
     }
     wakeup();
   }

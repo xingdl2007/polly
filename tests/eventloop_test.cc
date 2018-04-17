@@ -71,7 +71,6 @@ TEST(EventLoop, SimpleTimer) {
 
 TEST(EventLoop, TimerQueue) {
   EventLoop loop;
-  setLogLevel(LogLevel::TRACE);
 
   loop.RunAfter(1, []() { printf("one shot 1s timeout\n"); });
   loop.RunEvery(1, []() { printf("1s timeout\n"); });
@@ -110,23 +109,6 @@ TEST(EventLoopThread, Basic) {
   ::sleep(5);
 }
 
-TEST(Acceptor, Basic) {
-  EventLoop loop;
-
-  InetAddress server("192.168.0.108", 5000);
-  Acceptor acceptor(&loop, server);
-
-  // register new connection callback
-  acceptor.SetNewConnectionCallback([](int connfd, const InetAddress &client) {
-    printf("client: %s, port: %d\n", client.IP(), client.Port());
-    ::write(connfd, "How are you?\n", 13);
-    ::close(connfd);
-  });
-
-  acceptor.listen();
-  loop.loop();
-}
-
 TEST(EventLoopThread, RunInLoop) {
   std::function<void(EventLoop *)> callback = [](EventLoop *loop) {
     if (loop != nullptr)
@@ -144,4 +126,16 @@ TEST(EventLoopThread, RunInLoop) {
   });
 
   ::sleep(5);
+}
+
+TEST(EventLoop, AddTimer) {
+  EventLoop loop;
+
+  std::thread remote([&]() {
+    loop.RunEvery(1, []() { printf("hi!\n"); });
+    loop.RunAfter(5, [&]() { loop.quit(); });
+  });
+
+  loop.loop();
+  remote.join();
 }

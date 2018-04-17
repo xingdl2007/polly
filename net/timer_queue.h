@@ -47,6 +47,8 @@ public:
 private:
   void reset(TimerTable &expired, Timestamp now);
 
+  void addTimer(const TimerCallback &cb, Timestamp when, double interval);
+
   EventLoop *loop_;
   const int timerfd_;
   Channel timerfd_channel_;
