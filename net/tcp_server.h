@@ -38,7 +38,6 @@ public:
   void SetConnectionCallback(const ConnectionCallback &cb) {
     conn_callback_ = cb;
   }
-
   // Set message callback.
   void SetMessageCallback(const MessageCallback &cb) {
     msg_callback_ = cb;

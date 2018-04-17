@@ -60,15 +60,19 @@ void Poller::UpdateChannel(Channel *channel) {
 
     pfd.events = static_cast<short>(channel->events());
     pfd.revents = 0;
+
+    // only happened when closing tcp connection
     if (channel->isNoneEvent()) {
-      pfd.fd = -1;
+      channels_.erase(pfd.fd);
+      pollfds_.erase(pollfds_.begin() + idx);
+      //pfd.fd = -1;
     }
   }
 }
 
 void Poller::fillActiveChannels(int numEvents, ChannelList *active) const {
   for (auto const &it: pollfds_) {
-    if (it.revents > 0) {
+    if (it.fd >= 0 && it.revents > 0) {
       auto ch = channels_.find(it.fd);
       assert(ch != channels_.end());
 

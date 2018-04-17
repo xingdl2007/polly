@@ -18,7 +18,7 @@ using namespace std;
 using namespace polly;
 
 TEST(TcpServer, Basic) {
-  setLogLevel(LogLevel::WARN);
+  setLogLevel(LogLevel::INFO);
   EventLoop loop;
 
   InetAddress addr("127.0.0.1", 5000);

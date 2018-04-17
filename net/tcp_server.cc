@@ -24,11 +24,21 @@ void TcpServer::Start() {
     // assign every connection a name
     std::string conn_name = name_ + "-client " + std::to_string(next_conn_id_);
     next_conn_id_++;
-    auto conn = std::make_shared<TcpConnection>(loop_, conn_name,
-                                                connfd, remote);
+
+    auto conn = std::make_shared<TcpConnection>(loop_, conn_name, connfd,
+                                                remote);
     connections_[conn_name] = conn;
     conn->SetConnectionCallback(conn_callback_);
     conn->SetMessageCallback(msg_callback_);
+
+    conn->SetCloseCallback([this](const std::shared_ptr<TcpConnection> &c) {
+      loop_->assertInLoopThread();
+      LOG_INFO << "TcpServer::removeConnection()";
+      size_t n = connections_.erase(c->name());
+      assert(n == 1);
+    });
+
+    // finally
     conn->ConnectEstablished();
   });
 

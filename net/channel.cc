@@ -18,6 +18,12 @@ Channel::Channel(EventLoop *loop, int fd) : loop_(loop), fd_(fd),
                                             index_(-1) {}
 
 void Channel::HandleEvent() const {
+  if (revents_ & POLLHUP) {
+    LOG_WARNING << "Channel::HandleEvent() POLLHUP";
+    if (close_callback_) {
+      close_callback_();
+    }
+  }
   if (revents_ & POLLNVAL) {
     LOG_WARNING << "Channel::HandleEvent() POLLNVAL";
   }

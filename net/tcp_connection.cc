@@ -3,6 +3,7 @@
 // found in the LICENSE file. See the AUTHORS file for names of contributors.
 
 #include <unistd.h>
+#include "eventloop.h"
 #include "tcp_connection.h"
 #include "socket.h"
 #include "channel.h"
@@ -23,12 +24,40 @@ TcpConnection::TcpConnection(EventLoop *loop, std::string name, int conn_fd, con
 void TcpConnection::HandleRead() {
   LOG_TRACE << "TcpConnection::HandleRead()";
   char data[65536];
+
   ssize_t n = ::read(channel_->fd(), data, sizeof data);
   Buffer buf(data, n);
+
   LOG_TRACE << "TcpConnection::onMessage()";
-  if (msg_callback_) {
-    msg_callback_(shared_from_this(), &buf, Timestamp::now());
+  if (n > 0) {
+    if (msg_callback_) {
+      msg_callback_(shared_from_this(), &buf, Timestamp::now());
+    }
+  } else if (n == 0) {
+    HandleClose();
+  } else {
+    HandleError();
   }
+}
+
+void TcpConnection::HandleWrite() {
+
+}
+
+void TcpConnection::HandleClose() {
+  loop_->assertInLoopThread();
+  LOG_TRACE << "TcpConnection::HandleClose()";
+
+  // we don't close fd, leave it to dtor, so we can find leaks easily.
+  channel_->DisbaleAll();
+  if (close_callback_) {
+    close_callback_(shared_from_this());
+  }
+}
+
+// only log
+void TcpConnection::HandleError() {
+  LOG_ERROR << "TcpConnection::HandleError()";
 }
 
 void TcpConnection::ConnectEstablished() {

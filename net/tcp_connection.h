@@ -25,6 +25,8 @@ class TcpConnection : public std::enable_shared_from_this<TcpConnection> {
   using MessageCallback = std::function<void(const TcpConnectionPtr &,
                                              Buffer *,
                                              Timestamp)>;
+  using CloseCallback = std::function<void(const TcpConnectionPtr &)>;
+
 public:
   TcpConnection(EventLoop *loop, std::string name, int conn_fd, const InetAddress remote);
 
@@ -38,19 +40,23 @@ public:
   int remotePort() { return remote_addr_.Port(); }
 
   void HandleRead();
+  void HandleWrite();
+  void HandleClose();
+  void HandleError();
 
   void SetConnectionCallback(const ConnectionCallback &cb) {
     conn_callback_ = cb;
   }
-
   void SetMessageCallback(const MessageCallback &cb) {
     msg_callback_ = cb;
   }
-
+  void SetCloseCallback(const CloseCallback &cb) {
+    close_callback_ = cb;
+  }
   void ConnectEstablished();
 
 private:
-  enum State { kConnecting, kConnected };
+  enum State { kConnecting, kConnected, kDisconnected };
 
   EventLoop *loop_;
   std::string name_;
@@ -64,6 +70,7 @@ private:
   InetAddress remote_addr_;
   ConnectionCallback conn_callback_;
   MessageCallback msg_callback_;
+  CloseCallback close_callback_;
 };
 
 } // namespace polly

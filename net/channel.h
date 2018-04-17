@@ -34,8 +34,16 @@ public:
     error_callback_ = cb;
   }
 
+  void SetCloseCallback(EventCallBack const &cb) {
+    close_callback_ = cb;
+  }
+
   void EnableReading() {
     events_ |= kReadEvent;
+    update();
+  }
+  void DisbaleAll() {
+    events_ = kNoneEvent;
     update();
   }
 
@@ -66,6 +74,7 @@ private:
   EventCallBack read_callback_;
   EventCallBack write_callback_;
   EventCallBack error_callback_;
+  EventCallBack close_callback_;
 };
 
 } // namespace polly
