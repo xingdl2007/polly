@@ -24,12 +24,12 @@ TEST(TcpServer, Basic) {
   InetAddress addr("127.0.0.1", 5000);
   TcpServer server(&loop, addr, "test");
 
-  server.SetConnectionCallback([](const TcpConnectionPtr &conn) {
+  server.SetConnectionCallback([](const std::shared_ptr<TcpConnection> &conn) {
     cerr << "onConnection(): new connection [" << conn->name() << "] from "
          << conn->remoteIP() << " : " << conn->remotePort() << '\n';
   });
 
-  server.SetMessageCallback([](const TcpConnectionPtr &conn,
+  server.SetMessageCallback([](const std::shared_ptr<TcpConnection> &conn,
                                Buffer *buffer,
                                Timestamp time) {
     if (buffer->size() > 0) {
