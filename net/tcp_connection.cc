@@ -11,35 +11,34 @@
 
 namespace polly {
 
-TcpConnection::TcpConnection(EventLoop *loop, std::string name, int conn_fd, const InetAddress remote)
+TcpConnection::TcpConnection(EventLoop *loop, std::string name, int conn_fd,
+                             const InetAddress remote)
     : loop_(loop), name_(name), socket_(std::make_unique<Socket>(conn_fd)),
-      channel_(std::make_unique<Channel>(loop, conn_fd)), remote_addr_(remote) {
+      channel_(std::make_unique<Channel>(loop, conn_fd)),
+      remote_addr_(remote) {
 
-  channel_->SetReadCallback([this]() {
-    this->HandleRead();
-  });
+  // read
+  channel_->SetReadCallback([this]() { this->HandleRead(); });
   channel_->EnableReading();
+
+  // write
+  channel_->SetWriteCallback([this]() { this->HandleWrite(); });
 }
 
 void TcpConnection::HandleRead() {
   LOG_TRACE << "TcpConnection::HandleRead()";
-  Buffer buffer;
-  ssize_t n = buffer.readFd(channel_->fd(), nullptr);
+  ssize_t n = rev_buffer_.readFd(channel_->fd(), nullptr);
 
   LOG_TRACE << "TcpConnection::onMessage()";
   if (n > 0) {
     if (msg_callback_) {
-      msg_callback_(shared_from_this(), &buffer, Timestamp::now());
+      msg_callback_(shared_from_this(), &rev_buffer_, Timestamp::now());
     }
   } else if (n == 0) {
     HandleClose();
   } else {
     HandleError();
   }
-}
-
-void TcpConnection::HandleWrite() {
-
 }
 
 void TcpConnection::HandleClose() {
@@ -61,6 +60,56 @@ void TcpConnection::HandleError() {
 void TcpConnection::ConnectEstablished() {
   if (conn_callback_) {
     conn_callback_(shared_from_this());
+  }
+}
+
+// interesting
+void TcpConnection::Send(std::string const &msg) {
+  loop_->assertInLoopThread();
+  ssize_t nwrote = 0;
+
+  // if nothing in output queue, try writing directly
+  if (!channel_->isWritingEnabled() && snd_buffer_.readableBytes() == 0) {
+    nwrote = ::write(channel_->fd(), msg.data(), msg.size());
+    if (nwrote >= 0) {
+      if (static_cast<size_t >(nwrote) < msg.size()) {
+        LOG_TRACE << "I am going to write more data";
+      }
+    } else {
+      nwrote = 0;
+      if (errno != EWOULDBLOCK) {
+        LOG_ERROR << "TcpConnection::Send() failed";
+      }
+    }
+  }
+  // buffer left data to snd_buffer_ if any
+  assert(nwrote >= 0);
+  if (static_cast<size_t >(nwrote) < msg.size()) {
+    LOG_TRACE << "buffer left data in send buffer";
+    snd_buffer_.append(msg.data() + nwrote, msg.size() - nwrote);
+    if (!channel_->isWritingEnabled()) {
+      channel_->EnableWriting();
+    }
+  }
+}
+
+void TcpConnection::HandleWrite() {
+  loop_->assertInLoopThread();
+  if (channel_->isWritingEnabled()) {
+    ssize_t n = ::write(channel_->fd(), snd_buffer_.peek(),
+                        snd_buffer_.readableBytes());
+    if (n > 0) {
+      snd_buffer_.retrieve(n);
+      if (snd_buffer_.readableBytes() == 0) {
+        channel_->DisableWriting();
+      } else {
+        LOG_TRACE << "I am going to write more data";
+      }
+    } else {
+      LOG_TRACE << "TcpConnection::HandleWrite()";
+    }
+  } else {
+    LOG_TRACE << "Connection is donw, no more writing.";
   }
 }
 

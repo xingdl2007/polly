@@ -75,6 +75,8 @@ public:
     std::swap(writerIndex_, rhs.writerIndex_);
   }
 
+  const char *peek() { return begin() + readerIndex_; }
+
   // retrieve returns void, to prevent
   // string str(retrieve(readableBytes()), readableBytes());
   // the evaluation of two functions are unspecified

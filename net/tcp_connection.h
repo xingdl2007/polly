@@ -55,6 +55,9 @@ public:
   }
   void ConnectEstablished();
 
+  // Send
+  void Send(std::string const &msg);
+
 private:
   enum State { kConnecting, kConnected, kDisconnected };
 
@@ -71,6 +74,9 @@ private:
   ConnectionCallback conn_callback_;
   MessageCallback msg_callback_;
   CloseCallback close_callback_;
+
+  Buffer rev_buffer_; // receive buffer
+  Buffer snd_buffer_; // send buffer
 };
 
 } // namespace polly

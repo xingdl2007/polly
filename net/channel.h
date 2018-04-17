@@ -42,6 +42,17 @@ public:
     events_ |= kReadEvent;
     update();
   }
+  void EnableWriting() {
+    events_ |= kWriteEvent;
+    update();
+  }
+  void DisableWriting() {
+    events_ &= ~kWriteEvent;
+    update();
+  }
+  bool isWritingEnabled() const {
+    return (events_ & kWriteEvent) != 0;
+  }
   void DisbaleAll() {
     events_ = kNoneEvent;
     update();

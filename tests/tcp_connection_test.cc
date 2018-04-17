@@ -17,8 +17,8 @@
 using namespace std;
 using namespace polly;
 
-TEST(TcpServer, Basic) {
-  setLogLevel(LogLevel::INFO);
+TEST(TcpConnection, Echo) {
+  setLogLevel(LogLevel::WARN);
   EventLoop loop;
 
   InetAddress addr("127.0.0.1", 5000);
@@ -34,6 +34,11 @@ TEST(TcpServer, Basic) {
                                Timestamp time) {
     std::cerr << "onMessage(): received " << buffer->readableBytes()
               << " bytes from " << conn->name() << '\n';
+
+    std::string msg(buffer->peek(), buffer->readableBytes());
+    buffer->retrieveAll();
+
+    conn->Send(msg);
   });
 
   server.Start();
