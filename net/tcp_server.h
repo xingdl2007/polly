@@ -29,7 +29,7 @@ public:
   TcpServer(TcpServer const &) = delete;
   TcpServer &operator=(TcpServer const &) = delete;
 
-  ~TcpServer();
+  ~TcpServer() = default;
 
   // Start the server if it's not listening.
   void Start();
@@ -47,13 +47,13 @@ public:
 private:
   typedef std::map<std::string, TcpConnectionPtr> ConnectionMap;
 
-  EventLoop *loop_;                      // the acceptor loop
-  const std::string name_;              // server name
-  std::unique_ptr<Acceptor> acceptor_;
-  ConnectionCallback conn_callback_;
-  MessageCallback msg_callback_;
-  int next_conn_id_;
-  ConnectionMap connections_;
+  EventLoop *loop_;                    // the acceptor loop
+  const std::string name_;             // server name
+  std::unique_ptr<Acceptor> acceptor_; // listen socket
+  ConnectionCallback conn_callback_;   // pass to every tcp connection
+  MessageCallback msg_callback_;       // pass to every tcp connection
+  int next_conn_id_;                   // for assign unique name to client
+  ConnectionMap connections_;          // management of all connections
 };
 
 } // namespace polly
