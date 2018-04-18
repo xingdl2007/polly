@@ -47,7 +47,8 @@ void TcpServer::Start() {
     connections_[conn_name] = conn;
     conn->SetConnectionCallback(conn_callback_);
     conn->SetMessageCallback(msg_callback_);
-
+    conn->SetWriteCompleteCallback(wc_callback_);
+    
     conn->SetCloseCallback([this](const std::shared_ptr<TcpConnection> &c) {
       loop_->assertInLoopThread();
       LOG_INFO << "TcpServer::removeConnection()";

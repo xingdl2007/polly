@@ -23,6 +23,8 @@ class TcpServer {
   using MessageCallback = std::function<void(const TcpConnectionPtr &,
                                              Buffer *,
                                              Timestamp)>;
+  using WriteCompleteCallback = std::function<void(const TcpConnectionPtr &)>;
+
 public:
   TcpServer(EventLoop *loop, const InetAddress &listen_addr, std::string name);
 
@@ -42,15 +44,21 @@ public:
   void SetMessageCallback(const MessageCallback &cb) {
     msg_callback_ = cb;
   }
-
+  // Set write complete callback
+  void SetWriteCompleteCallback(const WriteCompleteCallback &cb) {
+    wc_callback_ = cb;
+  }
 private:
   typedef std::map<std::string, TcpConnectionPtr> ConnectionMap;
 
   EventLoop *loop_;                    // the acceptor loop
   const std::string name_;             // server name
   std::unique_ptr<Acceptor> acceptor_; // listen socket
-  ConnectionCallback conn_callback_;   // pass to every tcp connection
-  MessageCallback msg_callback_;       // pass to every tcp connection
+
+  ConnectionCallback conn_callback_;   // pass to tcp connection
+  MessageCallback msg_callback_;       // pass to tcp connection
+  WriteCompleteCallback wc_callback_;  // pass to tcp connection
+
   int next_conn_id_;                   // for assign unique name to client
   InetAddress listen_addr_;            // listening address;
   ConnectionMap connections_;          // management of all connections

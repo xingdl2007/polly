@@ -114,6 +114,11 @@ void TcpConnection::sendInLoop(std::string const &msg) {
     if (nwrote >= 0) {
       if (static_cast<size_t >(nwrote) < msg.size()) {
         LOG_TRACE << "I am going to write more data";
+      } else {
+        if (write_complete_callback_) {
+          loop_->RunInLoop(std::bind(write_complete_callback_,
+                                     shared_from_this()));
+        }
       }
     } else {
       nwrote = 0;
@@ -160,6 +165,10 @@ void TcpConnection::HandleWrite() {
       snd_buffer_.retrieve(n);
       if (snd_buffer_.readableBytes() == 0) {
         channel_->DisableWriting();
+        if (write_complete_callback_) {
+          loop_->RunInLoop(std::bind(write_complete_callback_,
+                                     shared_from_this()));
+        }
         // continuing shutdown, after send all data out
         if (state_ == kDisconnecting) {
           shutdownInLoop();

@@ -26,6 +26,7 @@ class TcpConnection : public std::enable_shared_from_this<TcpConnection> {
                                              Buffer *,
                                              Timestamp)>;
   using CloseCallback = std::function<void(const TcpConnectionPtr &)>;
+  using WriteCompleteCallback = std::function<void(const TcpConnectionPtr &)>;
 
   // TCP connection state
   enum State { kConnecting, kConnected, kDisconnecting, kDisconnected };
@@ -56,6 +57,9 @@ public:
   }
   void SetCloseCallback(const CloseCallback &cb) {
     close_callback_ = cb;
+  }
+  void SetWriteCompleteCallback(const WriteCompleteCallback &cb) {
+    write_complete_callback_ = cb;
   }
   void ConnectEstablished();
   void ConnectDestroyed();
@@ -89,6 +93,7 @@ private:
   ConnectionCallback conn_callback_;
   MessageCallback msg_callback_;
   CloseCallback close_callback_;
+  WriteCompleteCallback write_complete_callback_;
 
   Buffer rev_buffer_; // receive buffer
   Buffer snd_buffer_; // send buffer
