@@ -18,6 +18,12 @@ void Socket::Bind(InetAddress const &addr_) {
   }
 }
 
+void Socket::ShutdownWrite() {
+  if (::shutdown(sockfd_, SHUT_WR) < 0) {
+    LOG_ERROR << "Socket::ShutdownWrite()";
+  }
+}
+
 // only support IPv4 + TCP for simplicity
 int NewNonBlockingSocket() {
   int sockfd = ::socket(PF_INET, SOCK_STREAM | SOCK_NONBLOCK | SOCK_CLOEXEC, 0);

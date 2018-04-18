@@ -28,7 +28,7 @@ class TcpConnection : public std::enable_shared_from_this<TcpConnection> {
   using CloseCallback = std::function<void(const TcpConnectionPtr &)>;
 
   // TCP connection state
-  enum State { kConnecting, kConnected, kDisconnected };
+  enum State { kConnecting, kConnected, kDisconnecting, kDisconnected };
 
 public:
   TcpConnection(EventLoop *loop, std::string name, int conn_fd,
@@ -63,6 +63,8 @@ public:
   // Send
   void Send(std::string const &msg);
 
+  void Shutdown();
+
   // Set state
   void SetState(State s) { state_ = s; }
   bool connected() { return state_ == kConnected; }
@@ -71,6 +73,8 @@ public:
   EventLoop *getLoop() { return loop_; }
 
 private:
+  void shutdownInLoop();
+  void sendInLoop(std::string const &msg);
 
   EventLoop *loop_;
   std::string name_;

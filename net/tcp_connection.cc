@@ -17,13 +17,11 @@ TcpConnection::TcpConnection(EventLoop *loop, std::string name, int conn_fd,
       socket_(std::make_unique<Socket>(conn_fd)),
       channel_(std::make_unique<Channel>(loop, conn_fd)),
       local_addr_(local), remote_addr_(remote) {
-
   // read
   channel_->SetReadCallback([this]() { this->HandleRead(); });
   channel_->EnableReading();
   // write
   channel_->SetWriteCallback([this]() { this->HandleWrite(); });
-
   // close: unlike read/write, close does not need enable
   channel_->SetCloseCallback([this]() { this->HandleClose(); });
 }
@@ -54,7 +52,7 @@ void TcpConnection::HandleClose() {
   loop_->assertInLoopThread();
   LOG_INFO << "TcpConnection::HandleClose()";
 
-  assert(state_ == kConnected);
+  assert(state_ == kConnected || state_ == kDisconnecting);
   channel_->DisbaleAll();
   SetState(kDisconnected);
 
@@ -76,16 +74,16 @@ void TcpConnection::ConnectEstablished() {
   }
 }
 
-// 1. call before TcpConnection is destructing, notify user
+// 1. call before TcpConnection is destructing, notify user.
 //    the last function before die.
 // 2. called when owner (TcpServer/TcpClient) destroyed, if
-//    there is connection still connected.
+//    there is connection still kConnected.
 void TcpConnection::ConnectDestroyed() {
   loop_->assertInLoopThread();
   LOG_INFO << "TcpConnection::ConnectDestroyed()";
 
   // if die abnormality, state_ will still be kConnected
-  if (state_ == kConnected) {
+  if (state_ == kConnected || state_ == kDisconnecting) {
     channel_->DisbaleAll();
   }
   SetState(kDisconnected);
@@ -96,8 +94,17 @@ void TcpConnection::ConnectDestroyed() {
   }
 }
 
-// interesting
+// Send can be called in non-IO thread, which is useful
 void TcpConnection::Send(std::string const &msg) {
+  if (loop_->isInLoopThread()) {
+    sendInLoop(msg);
+  } else {
+    loop_->RunInLoop([&]() { this->sendInLoop(msg); });
+  }
+}
+
+// interesting, will be called in IO thread
+void TcpConnection::sendInLoop(std::string const &msg) {
   loop_->assertInLoopThread();
   ssize_t nwrote = 0;
 
@@ -123,6 +130,22 @@ void TcpConnection::Send(std::string const &msg) {
     if (!channel_->isWritingEnabled()) {
       channel_->EnableWriting();
     }
+  }
+}
+
+// Shutdown can be called in non-IO thread, which is useful
+void TcpConnection::Shutdown() {
+  if (state_ == kConnected) {
+    SetState(kDisconnecting);
+    loop_->RunInLoop([&]() { this->shutdownInLoop(); });
+  }
+}
+
+// close write-end, will be called in IO thread
+void TcpConnection::shutdownInLoop() {
+  loop_->assertInLoopThread();
+  if (!channel_->isWritingEnabled()) {
+    socket_->ShutdownWrite();
   }
 }
 

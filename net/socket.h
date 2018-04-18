@@ -22,6 +22,8 @@ public:
   void Bind(InetAddress const &);
   int fd() const { return sockfd_; }
 
+  void ShutdownWrite();
+
 private:
   const int sockfd_;
 };
