@@ -144,6 +144,7 @@ void TcpConnection::Shutdown() {
 // close write-end, will be called in IO thread
 void TcpConnection::shutdownInLoop() {
   loop_->assertInLoopThread();
+  // may be sending data, so postpone
   if (!channel_->isWritingEnabled()) {
     socket_->ShutdownWrite();
   }
@@ -158,6 +159,10 @@ void TcpConnection::HandleWrite() {
       snd_buffer_.retrieve(n);
       if (snd_buffer_.readableBytes() == 0) {
         channel_->DisableWriting();
+        // continuing shutdown, after send all data out
+        if (state_ == kDisconnecting) {
+          shutdownInLoop();
+        }
       } else {
         LOG_TRACE << "I am going to write more data";
       }
