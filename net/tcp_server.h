@@ -48,6 +48,7 @@ public:
   void SetWriteCompleteCallback(const WriteCompleteCallback &cb) {
     wc_callback_ = cb;
   }
+
 private:
   typedef std::map<std::string, TcpConnectionPtr> ConnectionMap;
 

@@ -17,7 +17,8 @@ class EventLoopThread {
   using InitialCalback = std::function<void(EventLoop *)>;
 
 public:
-  EventLoopThread(InitialCalback const &cb = InitialCalback()) : callback_(cb) {}
+  EventLoopThread(InitialCalback const &cb = InitialCalback())
+      : loop_(nullptr), callback_(cb) {}
 
   EventLoopThread(EventLoopThread const &) = delete;
   EventLoopThread &operator=(EventLoopThread const &) = delete;
