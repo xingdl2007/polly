@@ -13,7 +13,7 @@ using namespace std;
 using namespace polly;
 
 int main() {
-  setLogLevel(LogLevel::WARN);
+  setLogLevel(LogLevel::INFO);
   EventLoop loop;
 
   InetAddress addr("127.0.0.1", 5000);
@@ -21,19 +21,24 @@ int main() {
 
   // only On connection, no message when connection is closed by client
   server.SetConnectionCallback([](const std::shared_ptr<TcpConnection> &conn) {
-    cerr << "onConnection(): new connection [" << conn->name() << "] from "
-         << conn->remoteIP() << " : " << conn->remotePort() << '\n';
+    if (conn->connected()) {
+      cout << "onConnection(): new connection [" << conn->name() << "] from "
+           << conn->remoteIP() << ":" << conn->remotePort() << '\n';
+    } else {
+      cout << "onConnection(): shutdown connection [" << conn->name() << "] from "
+           << conn->remoteIP() << ":" << conn->remotePort() << '\n';
+    }
   });
 
   server.SetMessageCallback([](const std::shared_ptr<TcpConnection> &conn,
                                Buffer *buffer,
                                Timestamp time) {
-    std::cerr << "onMessage(): received " << buffer->readableBytes()
+    std::cout << "onMessage(): received " << buffer->readableBytes()
               << " bytes from " << conn->name() << '\n';
-
     std::string msg(buffer->peek(), buffer->readableBytes());
     buffer->retrieveAll();
 
+    // echo back
     conn->Send(msg);
   });
 

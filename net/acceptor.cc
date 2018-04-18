@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file. See the AUTHORS file for names of contributors.
 
+#include "eventloop.h"
 #include "acceptor.h"
 #include "socket.h"
 #include "log/logger.h"
@@ -22,6 +23,7 @@ Acceptor::Acceptor(EventLoop *loop, const InetAddress &listen_addr)
 }
 
 void Acceptor::listen() {
+  loop_->assertInLoopThread();
   int ret = ::listen(listen_socket_.fd(), SOMAXCONN);
   if (ret == -1) {
     LOG_FATAL << "Acceptor::Listen() failed";
@@ -31,8 +33,9 @@ void Acceptor::listen() {
 
 void Acceptor::handleRead() {
   LOG_INFO << "Acceptor::HandleRead";
+  loop_->assertInLoopThread();
 
-  sockaddr_in addr_ = {};
+  sockaddr_in addr_{};
   socklen_t len = sizeof addr_;
   int connfd = ::accept4(listen_socket_.fd(), reinterpret_cast<sockaddr *>(&addr_),
                          &len, SOCK_NONBLOCK | SOCK_CLOEXEC);

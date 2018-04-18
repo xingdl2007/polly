@@ -18,10 +18,10 @@ using namespace polly;
 TEST(Acceptor, Basic) {
   EventLoop loop;
 
-  InetAddress server("192.168.0.108", 5000);
+  InetAddress server("127.0.0.1", 5000);
   Acceptor acceptor(&loop, server);
 
-// register new connection callback
+  // register new connection callback
   acceptor.SetNewConnectionCallback([](int connfd, const InetAddress &client) {
     printf("client: %s, port: %d\n", client.IP(), client.Port());
     ::write(connfd, "How are you?\n", 13);

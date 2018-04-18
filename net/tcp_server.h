@@ -52,6 +52,7 @@ private:
   ConnectionCallback conn_callback_;   // pass to every tcp connection
   MessageCallback msg_callback_;       // pass to every tcp connection
   int next_conn_id_;                   // for assign unique name to client
+  InetAddress listen_addr_;            // listening address;
   ConnectionMap connections_;          // management of all connections
 };
 

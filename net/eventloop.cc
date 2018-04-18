@@ -30,8 +30,7 @@ EventLoop::EventLoop() : looping_(false), quit_(false),
                          threadId_(this_thread::tid()),
                          poller(std::make_unique<Poller>(this)),
                          timers_(this), wakeup_fd_(createEventfd()),
-                         wakeup_channel_(std::make_unique<Channel>
-                                             (this, wakeup_fd_)) {
+                         wakeup_channel_(this, wakeup_fd_) {
   LOG_TRACE << "EVentLoop created in thread " << threadId_;
   if (t_loopInThisThread) {
     LOG_FATAL << "Another EventLoop already exists in this thread ";
@@ -42,10 +41,10 @@ EventLoop::EventLoop() : looping_(false), quit_(false),
   }
 
   // for wake up
-  wakeup_channel_->SetReadCallback([this]() {
+  wakeup_channel_.SetReadCallback([this]() {
     this->handleRead();
   });
-  wakeup_channel_->EnableReading();
+  wakeup_channel_.EnableReading();
 }
 
 EventLoop::~EventLoop() {
@@ -116,7 +115,7 @@ void EventLoop::RunAfter(const double delay, const TimeCallback &cb) {
   timers_.AddTimer(cb, Timestamp::now() + delay, 0);
 }
 
-void EventLoop::RunEvery(double interval, const TimeCallback &cb) {
+void EventLoop::RunEvery(const double interval, const TimeCallback &cb) {
   timers_.AddTimer(cb, Timestamp::now() + interval, interval);
 }
 

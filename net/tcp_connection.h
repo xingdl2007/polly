@@ -27,13 +27,17 @@ class TcpConnection : public std::enable_shared_from_this<TcpConnection> {
                                              Timestamp)>;
   using CloseCallback = std::function<void(const TcpConnectionPtr &)>;
 
+  // TCP connection state
+  enum State { kConnecting, kConnected, kDisconnected };
+
 public:
-  TcpConnection(EventLoop *loop, std::string name, int conn_fd, const InetAddress remote);
+  TcpConnection(EventLoop *loop, std::string name, int conn_fd,
+                const InetAddress &local, const InetAddress &remote);
 
   TcpConnection(TcpConnection const &) = delete;
   TcpConnection &operator=(TcpConnection const &) = delete;
 
-  ~TcpConnection() = default;
+  ~TcpConnection();
 
   std::string name() { return name_; }
   char *remoteIP() { return remote_addr_.IP(); }
@@ -54,12 +58,19 @@ public:
     close_callback_ = cb;
   }
   void ConnectEstablished();
+  void ConnectDestroyed();
 
   // Send
   void Send(std::string const &msg);
 
+  // Set state
+  void SetState(State s) { state_ = s; }
+  bool connected() { return state_ == kConnected; }
+
+  // getLoop
+  EventLoop *getLoop() { return loop_; }
+
 private:
-  enum State { kConnecting, kConnected, kDisconnected };
 
   EventLoop *loop_;
   std::string name_;

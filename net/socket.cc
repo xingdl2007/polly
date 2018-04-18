@@ -28,4 +28,24 @@ int NewNonBlockingSocket() {
   return sockfd;
 }
 
+struct sockaddr_in getLocalAddr(int sockfd) {
+  struct sockaddr_in localaddr;
+  bzero(&localaddr, sizeof localaddr);
+  socklen_t addrlen = sizeof localaddr;
+  if (::getsockname(sockfd, reinterpret_cast<sockaddr *>(&localaddr), &addrlen) < 0) {
+    LOG_ERROR << "sockets::getLocalAddr";
+  }
+  return localaddr;
+}
+
+struct sockaddr_in getPeerAddr(int sockfd) {
+  struct sockaddr_in peeraddr;
+  bzero(&peeraddr, sizeof peeraddr);
+  socklen_t addrlen = sizeof peeraddr;
+  if (::getpeername(sockfd, reinterpret_cast<sockaddr *>(&peeraddr), &addrlen) < 0) {
+    LOG_ERROR << "sockets::getPeerAddr";
+  }
+  return peeraddr;
+}
+
 } // namespace polly

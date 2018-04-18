@@ -12,25 +12,34 @@
 namespace polly {
 
 TcpConnection::TcpConnection(EventLoop *loop, std::string name, int conn_fd,
-                             const InetAddress remote)
-    : loop_(loop), name_(name), socket_(std::make_unique<Socket>(conn_fd)),
+                             const InetAddress &local, const InetAddress &remote)
+    : loop_(loop), name_(name), state_(kConnecting),
+      socket_(std::make_unique<Socket>(conn_fd)),
       channel_(std::make_unique<Channel>(loop, conn_fd)),
-      remote_addr_(remote) {
+      local_addr_(local), remote_addr_(remote) {
 
   // read
   channel_->SetReadCallback([this]() { this->HandleRead(); });
   channel_->EnableReading();
-
   // write
   channel_->SetWriteCallback([this]() { this->HandleWrite(); });
+
+  // close: unlike read/write, close does not need enable
+  channel_->SetCloseCallback([this]() { this->HandleClose(); });
+}
+
+TcpConnection::~TcpConnection() {
+  assert(state_ == kDisconnected);
+  LOG_DEBUG << "TcpConnection::~TcpConnection() " << name_
+            << ", fd = " << channel_->fd();
 }
 
 void TcpConnection::HandleRead() {
-  LOG_TRACE << "TcpConnection::HandleRead()";
+  LOG_INFO << "TcpConnection::HandleRead()";
   ssize_t n = rev_buffer_.readFd(channel_->fd(), nullptr);
 
-  LOG_TRACE << "TcpConnection::onMessage()";
   if (n > 0) {
+    LOG_INFO << "TcpConnection::onMessage()";
     if (msg_callback_) {
       msg_callback_(shared_from_this(), &rev_buffer_, Timestamp::now());
     }
@@ -43,10 +52,13 @@ void TcpConnection::HandleRead() {
 
 void TcpConnection::HandleClose() {
   loop_->assertInLoopThread();
-  LOG_TRACE << "TcpConnection::HandleClose()";
+  LOG_INFO << "TcpConnection::HandleClose()";
 
-  // we don't close fd, leave it to dtor, so we can find leaks easily.
+  assert(state_ == kConnected);
   channel_->DisbaleAll();
+  SetState(kDisconnected);
+
+  // clean up TcpServer
   if (close_callback_) {
     close_callback_(shared_from_this());
   }
@@ -58,6 +70,27 @@ void TcpConnection::HandleError() {
 }
 
 void TcpConnection::ConnectEstablished() {
+  SetState(kConnected);
+  if (conn_callback_) {
+    conn_callback_(shared_from_this());
+  }
+}
+
+// 1. call before TcpConnection is destructing, notify user
+//    the last function before die.
+// 2. called when owner (TcpServer/TcpClient) destroyed, if
+//    there is connection still connected.
+void TcpConnection::ConnectDestroyed() {
+  loop_->assertInLoopThread();
+  LOG_INFO << "TcpConnection::ConnectDestroyed()";
+
+  // if die abnormality, state_ will still be kConnected
+  if (state_ == kConnected) {
+    channel_->DisbaleAll();
+  }
+  SetState(kDisconnected);
+
+  // notify user
   if (conn_callback_) {
     conn_callback_(shared_from_this());
   }

@@ -55,7 +55,7 @@ public:
 
   // timer related
   void RunAt(const Timestamp &ts, const TimeCallback &cb);
-  void RunAfter(const double delay, const TimeCallback &cb);
+  void RunAfter(double delay, const TimeCallback &cb);
   void RunEvery(double interval, const TimeCallback &cb);
 
   // working queue
@@ -81,7 +81,7 @@ private:
 
   // for wake up eventloop
   int wakeup_fd_;
-  std::unique_ptr<Channel> wakeup_channel_;
+  Channel wakeup_channel_;
 
   std::mutex mutex_;
   std::vector<Functor> functors_;
