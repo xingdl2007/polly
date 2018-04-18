@@ -18,6 +18,7 @@ using namespace std;
 using namespace polly;
 
 TEST(TcpConnection, Shutdown) {
+  ::signal(SIGPIPE, SIG_IGN);
   setLogLevel(LogLevel::TRACE);
   EventLoop loop;
 
@@ -29,6 +30,8 @@ TEST(TcpConnection, Shutdown) {
     if (conn->connected()) {
       cout << "onConnection(): new connection [" << conn->name() << "] from "
            << conn->remoteIP() << " : " << conn->remotePort() << '\n';
+
+      ::sleep(5);
 
       conn->Send("hello");
       conn->Send(" world!\n");

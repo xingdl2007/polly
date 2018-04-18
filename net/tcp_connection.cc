@@ -119,6 +119,7 @@ void TcpConnection::sendInLoop(std::string const &msg) {
       nwrote = 0;
       if (errno != EWOULDBLOCK) {
         LOG_ERROR << "TcpConnection::Send() failed";
+        return;
       }
     }
   }
