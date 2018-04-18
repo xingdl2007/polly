@@ -17,7 +17,7 @@
 using namespace std;
 using namespace polly;
 
-TEST(TcpConnection, Echo) {
+TEST(TcpConnection, Shutdown) {
   setLogLevel(LogLevel::TRACE);
   EventLoop loop;
 
@@ -26,20 +26,17 @@ TEST(TcpConnection, Echo) {
 
   // only On connection, no message when connection is closed by client
   server.SetConnectionCallback([](const std::shared_ptr<TcpConnection> &conn) {
-    cerr << "onConnection(): new connection [" << conn->name() << "] from "
-         << conn->remoteIP() << " : " << conn->remotePort() << '\n';
-  });
+    if (conn->connected()) {
+      cout << "onConnection(): new connection [" << conn->name() << "] from "
+           << conn->remoteIP() << " : " << conn->remotePort() << '\n';
 
-  server.SetMessageCallback([](const std::shared_ptr<TcpConnection> &conn,
-                               Buffer *buffer,
-                               Timestamp time) {
-    std::cerr << "onMessage(): received " << buffer->readableBytes()
-              << " bytes from " << conn->name() << '\n';
-
-    std::string msg(buffer->peek(), buffer->readableBytes());
-    buffer->retrieveAll();
-
-    conn->Send(msg);
+      conn->Send("hello");
+      conn->Send(" world!\n");
+      conn->Shutdown();
+    } else {
+      cout << "onConnection(): shutdown connection [" << conn->name() << "] from "
+           << conn->remoteIP() << ":" << conn->remotePort() << '\n';
+    }
   });
 
   server.Start();

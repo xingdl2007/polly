@@ -64,11 +64,15 @@ void EventLoop::loop() {
 
     // -1: wait until some file descriptor ready
     Timestamp now = poller->Poll(-1, &active_channels_);
+    LOG_TRACE << "EventLoop Poll return: "
+              << ", active_channels: " << active_channels_.size()
+              << ", pendingFunctors: " << functors_.size()
+              << "@ " << now.toFormatedString(false);
+
     for (auto const it: active_channels_) {
       LOG_TRACE << "EventLoop::loop(), channel " << it->fd() << " have event";
       it->HandleEvent();
     }
-    LOG_TRACE << "EventLoop Poll return @" << now.toFormatedString(false);
 
     // start processing pending works
     doPendingFunctors();

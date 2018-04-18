@@ -22,8 +22,10 @@ void Channel::HandleEvent() const {
     LOG_WARNING << "Channel::HandleEvent() POLLHUP";
     if (close_callback_) {
       close_callback_();
+      return;
     }
   }
+
   if (revents_ & POLLNVAL) {
     LOG_WARNING << "Channel::HandleEvent() POLLNVAL";
   }
@@ -33,6 +35,7 @@ void Channel::HandleEvent() const {
     }
   }
   if (revents_ & (POLLIN | POLLPRI | POLLRDHUP)) {
+    LOG_WARNING << "Channel::HandleEvent() " << revents_;
     if (read_callback_) {
       read_callback_();
     }
