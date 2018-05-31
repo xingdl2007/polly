@@ -64,11 +64,13 @@ public:
     std::weak_ptr<Stock> &ptr = stocks_[key];
     ret = ptr.lock();
     if (!ret) {
-      ret = std::shared_ptr<Stock>(new Stock(key),
-                                   std::bind(
-                                       &StockFactory::weakDeleteCallback,
-                                       weak_from_this(),
-                                       std::placeholders::_1));
+      ret = std::shared_ptr<Stock>(new Stock(key), [factory = weak_from_this()](Stock *stock) {
+        auto fact(factory.lock());
+        if (fact) {
+          fact->deleteSock(stock);
+        }
+        delete stock;
+      });
       ptr = ret;
     }
     return ret;
@@ -79,14 +81,6 @@ public:
     return stocks_.size();
   }
 private:
-  static void weakDeleteCallback(const std::weak_ptr<StockFactory> &wkFactory,
-                                 Stock *stock) {
-    auto factory(wkFactory.lock());
-    if (factory) {
-      factory->deleteSock(stock);
-    }
-    delete stock;
-  }
   void deleteSock(Stock *stock) {
     if (stock) {
       std::lock_guard<std::mutex> lock(mutex_);
